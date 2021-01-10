@@ -1,7 +1,11 @@
 package com.sequenceiq.cloudbreak.converter.v4.stacks;
 
+import static com.sequenceiq.cloudbreak.common.mappable.CloudPlatform.AWS;
+import static com.sequenceiq.cloudbreak.common.mappable.CloudPlatform.MOCK;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,14 +22,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -33,6 +35,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.sequenceiq.cloudbreak.TestUtil;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.common.StackType;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.StackV4Request;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.authentication.StackAuthenticationV4Request;
@@ -41,6 +44,7 @@ import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.instancegroup.In
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
 import com.sequenceiq.cloudbreak.auth.security.authentication.AuthenticatedUserService;
+import com.sequenceiq.cloudbreak.common.exception.BadRequestException;
 import com.sequenceiq.cloudbreak.common.mappable.CloudPlatform;
 import com.sequenceiq.cloudbreak.common.mappable.Mappable;
 import com.sequenceiq.cloudbreak.common.mappable.ProviderParameterCalculator;
@@ -57,9 +61,7 @@ import com.sequenceiq.cloudbreak.domain.stack.cluster.DatalakeResources;
 import com.sequenceiq.cloudbreak.domain.stack.instance.InstanceGroup;
 import com.sequenceiq.cloudbreak.domain.stack.loadbalancer.LoadBalancer;
 import com.sequenceiq.cloudbreak.dto.credential.Credential;
-import com.sequenceiq.cloudbreak.common.exception.BadRequestException;
 import com.sequenceiq.cloudbreak.kerberos.KerberosConfigService;
-import com.sequenceiq.cloudbreak.structuredevent.CloudbreakRestRequestThreadLocalService;
 import com.sequenceiq.cloudbreak.service.LoadBalancerConfigService;
 import com.sequenceiq.cloudbreak.service.account.PreferencesService;
 import com.sequenceiq.cloudbreak.service.datalake.DatalakeResourcesService;
@@ -68,6 +70,7 @@ import com.sequenceiq.cloudbreak.service.environment.credential.CredentialClient
 import com.sequenceiq.cloudbreak.service.stack.GatewaySecurityGroupDecorator;
 import com.sequenceiq.cloudbreak.service.stack.StackService;
 import com.sequenceiq.cloudbreak.service.workspace.WorkspaceService;
+import com.sequenceiq.cloudbreak.structuredevent.CloudbreakRestRequestThreadLocalService;
 import com.sequenceiq.cloudbreak.tag.CostTagging;
 import com.sequenceiq.cloudbreak.tag.request.CDPTagMergeRequest;
 import com.sequenceiq.cloudbreak.workspace.model.User;
@@ -83,12 +86,15 @@ import com.sequenceiq.environment.api.v1.environment.model.response.DetailedEnvi
 import com.sequenceiq.environment.api.v1.environment.model.response.EnvironmentNetworkResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.TagResponse;
 
-public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTest<StackV4Request> {
+class StackV4RequestToStackConverterTest extends AbstractJsonConverterTest<StackV4Request> {
 
     private static final String TEST_USER_CRN = "crn:cdp:iam:us-west-1:accid:user:mockuser@cloudera.com";
 
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+    private static final Map<CloudPlatform, String> TEST_REGIONS = Map.of(
+            AWS, "eu-west-2",
+            MOCK, "some-mock-region-1");
+
+    private static final String DEFAULT_REGIONS_FIELD_NAME = "defaultRegions";
 
     @InjectMocks
     private StackV4RequestToStackConverter underTest;
@@ -164,15 +170,15 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
 
     private Credential credential;
 
-    @BeforeClass
-    public static void setupUserCrn() {
+    @BeforeAll
+    static void beforeAll() {
         if (ThreadBasedUserCrnProvider.getUserCrn() == null) {
             ThreadBasedUserCrnProvider.setUserCrn(TEST_USER_CRN);
         }
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         when(restRequestThreadLocalService.getCloudbreakUser()).thenReturn(cloudbreakUser);
         when(cloudbreakUser.getUsername()).thenReturn("username");
@@ -197,7 +203,7 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
     @Test
     public void testConvert() {
         initMocks();
-        ReflectionTestUtils.setField(underTest, "defaultRegions", "AWS:eu-west-2");
+        setDefaultRegions(AWS);
         StackV4Request request = getRequest("stack.json");
 
         given(credentialClientService.getByCrn(anyString())).willReturn(credential);
@@ -227,7 +233,7 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
     @Test
     public void testConvertShouldHaveDefaultTags() throws IOException {
         initMocks();
-        ReflectionTestUtils.setField(underTest, "defaultRegions", "AWS:eu-west-2");
+        setDefaultRegions(AWS);
         StackV4Request request = getRequest("stack-without-tags.json");
 
         given(credentialClientService.getByName(anyString())).willReturn(credential);
@@ -266,24 +272,63 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
     @Test
     public void testConvertWithLoginUserName() {
         initMocks();
-        ReflectionTestUtils.setField(underTest, "defaultRegions", "AWS:eu-west-2");
-        thrown.expect(BadRequestException.class);
-        thrown.expectMessage("You can not modify the default user!");
+        setDefaultRegions(AWS);
         // WHEN
-        Stack stack = underTest.convert(getRequest("stack-with-loginusername.json"));
+        BadRequestException expectedException = Assertions.assertThrows(BadRequestException.class,
+                () -> underTest.convert(getRequest("stack-with-loginusername.json")));
+
         // THEN
-        assertAllFieldsNotNull(
-                stack,
-                Arrays.asList("description", "statusReason", "cluster", "credential", "environmentCrn", "gatewayPort", "template", "network", "securityConfig",
-                        "securityGroup", "version", "created", "platformVariant", "cloudPlatform", "saltPassword", "stackTemplate", "datalakeId",
-                        "customHostname", "customDomain", "clusterNameAsSubdomain", "hostgroupNameAsHostname", "loginUserName", "rootVolumeSize"));
-        assertEquals("eu-west-1", stack.getRegion());
+        assertEquals("You can not modify the default user!", expectedException.getMessage());
     }
 
     @Test
-    public void testConvertSharedServicePreparateWhenSharedServiceIsNullThenDatalakeNameShouldNotBeSet() {
+    public void testWhenRegionIsEmptyButDefaultRegionsAreEmptyThenBadRequestExceptionComes() {
+        setDefaultRegions(null);
         StackV4Request request = getRequest("stack.json");
-        request.setCloudPlatform(CloudPlatform.MOCK);
+        request.setCloudPlatform(MOCK);
+        request.getPlacement().setRegion(null);
+
+        BadRequestException resultException = assertThrows(BadRequestException.class, () -> underTest.convert(request));
+        assertEquals("No default region is specified. Region cannot be empty.", resultException.getMessage());
+    }
+
+    @Test
+    void testWhenProvidedRegionIsEmptyButDefaultOnesAreNotAndPlatformRegionIsNullThenBadRequestExceptionComes() {
+        setDefaultRegions(AWS);
+        StackV4Request request = getRequest("stack.json");
+        request.setCloudPlatform(MOCK);
+        request.getPlacement().setRegion(null);
+
+        BadRequestException resultException = assertThrows(BadRequestException.class, () -> underTest.convert(request));
+        assertEquals(String.format("No default region specified for: %s. Region cannot be empty.",
+                request.getCloudPlatform().name()), resultException.getMessage());
+    }
+
+    @Test
+    void testWhenProvidedRegionIsEmptyAndDefaultOnesAreNotAndPlatformRegionExistsForPlatformThenItShouldBeSet() {
+        setDefaultRegions(MOCK);
+        StackV4Request request = getRequest("stack.json");
+        request.setCloudPlatform(MOCK);
+        request.getPlacement().setRegion(null);
+        InstanceGroup instanceGroup = mock(InstanceGroup.class);
+
+        when(instanceGroup.getInstanceGroupType()).thenReturn(InstanceGroupType.GATEWAY);
+        given(credentialClientService.getByName(anyString())).willReturn(credential);
+        given(credentialClientService.getByCrn(anyString())).willReturn(credential);
+        given(conversionService.convert(any(InstanceGroupV4Request.class), eq(InstanceGroup.class))).willReturn(instanceGroup);
+        given(providerParameterCalculator.get(request)).willReturn(getMappable());
+        given(conversionService.convert(any(ClusterV4Request.class), eq(Cluster.class))).willReturn(new Cluster());
+
+        Stack result = underTest.convert(request);
+
+        assertEquals(TEST_REGIONS.get(MOCK), result.getRegion());
+    }
+
+    @Test
+    public void testConvertSharedServicePreparedWhenSharedServiceIsNullThenDatabaseNameShouldNotBeSet() {
+        StackV4Request request = getRequest("stack.json");
+        request.setCloudPlatform(MOCK);
+        request.setNetwork(TestUtil.networkV4RequestForMock());
         InstanceGroup instanceGroup = mock(InstanceGroup.class);
         when(instanceGroup.getInstanceGroupType()).thenReturn(InstanceGroupType.GATEWAY);
 
@@ -298,7 +343,30 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
         Stack result = underTest.convert(request);
 
         //THEN
-        Assert.assertNull(result.getDatalakeResourceId());
+        assertNull(result.getDatalakeResourceId());
+    }
+
+    @Test
+    public void testWhenSourceIsTemplate() {
+        StackV4Request request = getRequest("stack.json");
+        request.setCloudPlatform(MOCK);
+        request.setType(StackType.TEMPLATE);
+        request.setNetwork(TestUtil.networkV4RequestForMock());
+        InstanceGroup instanceGroup = mock(InstanceGroup.class);
+        when(instanceGroup.getInstanceGroupType()).thenReturn(InstanceGroupType.GATEWAY);
+
+        //GIVEN
+        given(credentialClientService.getByName(anyString())).willReturn(credential);
+        given(credentialClientService.getByCrn(anyString())).willReturn(credential);
+        given(conversionService.convert(any(InstanceGroupV4Request.class), eq(InstanceGroup.class))).willReturn(instanceGroup);
+        given(providerParameterCalculator.get(request)).willReturn(getMappable());
+        given(conversionService.convert(any(ClusterV4Request.class), eq(Cluster.class))).willReturn(new Cluster());
+
+        //WHEN
+        Stack result = underTest.convert(request);
+
+        //THEN
+        assertNull(result.getDatalakeResourceId());
     }
 
     @Test
@@ -325,7 +393,7 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
     @Test
     public void testConvertWithKnoxLoadBalancer() {
         initMocks();
-        ReflectionTestUtils.setField(underTest, "defaultRegions", "AWS:eu-west-2");
+        setDefaultRegions(AWS);
         StackV4Request request = getRequest("stack-datalake-with-instancegroups.json");
 
         when(entitlementService.datalakeLoadBalancerEnabled(anyString())).thenReturn(true);
@@ -346,7 +414,7 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
     @Test
     public void testNoLoadBalancersCreatedWhenEntitlementIsDisabled() {
         initMocks();
-        ReflectionTestUtils.setField(underTest, "defaultRegions", "AWS:eu-west-2");
+        setDefaultRegions(AWS);
         StackV4Request request = getRequest("stack-datalake-with-instancegroups.json");
 
         given(credentialClientService.getByCrn(anyString())).willReturn(credential);
@@ -445,4 +513,17 @@ public class StackV4RequestToStackConverterTest extends AbstractJsonConverterTes
 
         return request;
     }
+
+    private void setDefaultRegions(CloudPlatform platform) {
+        ReflectionTestUtils.setField(underTest, DEFAULT_REGIONS_FIELD_NAME, platform != null ? getTestRegion(platform) : null);
+    }
+
+    private String getTestRegion(CloudPlatform platform) {
+        String region = TEST_REGIONS.get(platform);
+        if (region != null) {
+            return platform.name() + ":" + region;
+        }
+        throw new IllegalArgumentException("No region has found for platform: " + platform);
+    }
+
 }
