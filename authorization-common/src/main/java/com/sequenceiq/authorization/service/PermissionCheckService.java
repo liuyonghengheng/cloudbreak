@@ -20,11 +20,11 @@ import com.sequenceiq.authorization.annotation.CustomPermissionCheck;
 import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
 import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.annotation.InternalOnly;
-import com.sequenceiq.authorization.service.list.ListPermissionChecker;
-import com.sequenceiq.cloudbreak.auth.altus.InternalCrnBuilder;
+import com.sequenceiq.authorization.service.list.ListAuthorizationService;
 import com.sequenceiq.cloudbreak.auth.ReflectionUtil;
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
+import com.sequenceiq.cloudbreak.auth.altus.InternalCrnBuilder;
 import com.sequenceiq.cloudbreak.auth.security.CrnUserDetailsService;
 import com.sequenceiq.cloudbreak.auth.security.internal.InitiatorUserCrn;
 import com.sequenceiq.cloudbreak.auth.security.internal.InternalUserModifier;
@@ -40,9 +40,6 @@ public class PermissionCheckService {
     private CommonPermissionCheckingUtils commonPermissionCheckingUtils;
 
     @Inject
-    private ListPermissionChecker listPermissionChecker;
-
-    @Inject
     private InternalUserModifier internalUserModifier;
 
     @Inject
@@ -53,6 +50,9 @@ public class PermissionCheckService {
 
     @Inject
     private AccountAuthorizationService accountAuthorizationService;
+
+    @Inject
+    private ListAuthorizationService listAuthorizationService;
 
     @Inject
     private ResourceAuthorizationService resourceAuthorizationService;
@@ -85,7 +85,7 @@ public class PermissionCheckService {
 
         if (hasAnnotation(methodSignature, FilterListBasedOnPermissions.class)) {
             FilterListBasedOnPermissions listFilterAnnotation = methodSignature.getMethod().getAnnotation(FilterListBasedOnPermissions.class);
-            return listPermissionChecker.checkPermissions(listFilterAnnotation, userCrn, proceedingJoinPoint, methodSignature, startTime);
+            return listAuthorizationService.filterList(listFilterAnnotation, Crn.safeFromString(userCrn), proceedingJoinPoint, getRequestId());
         }
 
         resourceAuthorizationService.authorize(userCrn, proceedingJoinPoint, methodSignature, getRequestId());

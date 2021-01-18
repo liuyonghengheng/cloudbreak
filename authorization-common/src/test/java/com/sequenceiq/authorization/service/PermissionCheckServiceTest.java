@@ -28,11 +28,14 @@ import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
 import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.annotation.InternalOnly;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
+import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
+import com.sequenceiq.authorization.resource.ListResourceProvider;
 import com.sequenceiq.authorization.resource.ResourceCrnAwareApiModel;
-import com.sequenceiq.authorization.service.list.ListPermissionChecker;
+import com.sequenceiq.authorization.service.list.ListAuthorizationService;
 import com.sequenceiq.cloudbreak.auth.ReflectionUtil;
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
+import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.security.CrnUserDetailsService;
 import com.sequenceiq.cloudbreak.auth.security.internal.InternalUserModifier;
 
@@ -50,9 +53,6 @@ public class PermissionCheckServiceTest {
     private CommonPermissionCheckingUtils commonPermissionCheckingUtils;
 
     @Mock
-    private ListPermissionChecker listPermissionChecker;
-
-    @Mock
     private InternalUserModifier internalUserModifier;
 
     @Mock
@@ -63,6 +63,9 @@ public class PermissionCheckServiceTest {
 
     @Mock
     private AccountAuthorizationService accountAuthorizationService;
+
+    @Mock
+    private ListAuthorizationService listAuthorizationService;
 
     @Mock
     private ResourceAuthorizationService resourceAuthorizationService;
@@ -92,7 +95,7 @@ public class PermissionCheckServiceTest {
         verifyNoInteractions(
                 internalUserModifier,
                 accountAuthorizationService,
-                listPermissionChecker,
+                listAuthorizationService,
                 resourceAuthorizationService);
     }
 
@@ -106,7 +109,7 @@ public class PermissionCheckServiceTest {
         verifyNoInteractions(
                 internalUserModifier,
                 accountAuthorizationService,
-                listPermissionChecker,
+                listAuthorizationService,
                 resourceAuthorizationService);
     }
 
@@ -130,7 +133,7 @@ public class PermissionCheckServiceTest {
         verify(commonPermissionCheckingUtils).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
-                listPermissionChecker);
+                listAuthorizationService);
     }
 
     @Test
@@ -144,7 +147,7 @@ public class PermissionCheckServiceTest {
         verify(commonPermissionCheckingUtils).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
-                listPermissionChecker);
+                listAuthorizationService);
     }
 
     @Test
@@ -158,7 +161,7 @@ public class PermissionCheckServiceTest {
         verifyNoInteractions(
                 internalUserModifier,
                 accountAuthorizationService,
-                listPermissionChecker);
+                listAuthorizationService);
     }
 
     @Test
@@ -167,8 +170,8 @@ public class PermissionCheckServiceTest {
 
         ThreadBasedUserCrnProvider.doAs(USER_CRN, () -> underTest.hasPermission(proceedingJoinPoint));
 
-        verify(listPermissionChecker).checkPermissions(any(FilterListBasedOnPermissions.class), eq(USER_CRN),
-                eq(proceedingJoinPoint), eq(methodSignature), anyLong());
+        verify(listAuthorizationService).filterList(any(FilterListBasedOnPermissions.class), eq(Crn.safeFromString(USER_CRN)),
+                eq(proceedingJoinPoint), any());
         verify(commonPermissionCheckingUtils, times(0)).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
@@ -183,8 +186,8 @@ public class PermissionCheckServiceTest {
         ThreadBasedUserCrnProvider.doAs(USER_CRN, () -> underTest.hasPermission(proceedingJoinPoint));
 
         verify(accountAuthorizationService).authorize(any(CheckPermissionByAccount.class), eq(USER_CRN));
-        verify(listPermissionChecker).checkPermissions(any(FilterListBasedOnPermissions.class), eq(USER_CRN),
-                eq(proceedingJoinPoint), eq(methodSignature), anyLong());
+        verify(listAuthorizationService).filterList(any(FilterListBasedOnPermissions.class), eq(Crn.safeFromString(USER_CRN)),
+                eq(proceedingJoinPoint), any());
         verify(commonPermissionCheckingUtils, times(0)).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
@@ -211,7 +214,7 @@ public class PermissionCheckServiceTest {
         verifyNoInteractions(
                 internalUserModifier,
                 accountAuthorizationService,
-                listPermissionChecker,
+                listAuthorizationService,
                 resourceAuthorizationService);
     }
 
@@ -236,7 +239,7 @@ public class PermissionCheckServiceTest {
         verifyNoInteractions(
                 internalUserModifier,
                 accountAuthorizationService,
-                listPermissionChecker,
+                listAuthorizationService,
                 resourceAuthorizationService);
     }
 
@@ -269,13 +272,15 @@ public class PermissionCheckServiceTest {
 
         }
 
-        @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT)
+        @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT,
+                provider = ExampleListAuthorizationProvider.class)
         public List<ResourceCrnAwareApiModel> listMethod() {
             return List.of();
         }
 
         @CheckPermissionByAccount(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT)
-        @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT)
+        @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT,
+                provider = ExampleListAuthorizationProvider.class)
         public List<ResourceCrnAwareApiModel> listAndAcccountBasedMethod() {
             return List.of();
         }
@@ -283,6 +288,24 @@ public class PermissionCheckServiceTest {
         @InternalOnly
         public void internalOnlyMethod() {
 
+        }
+    }
+
+    static class ExampleListAuthorizationProvider implements ListResourceProvider<String> {
+
+        @Override
+        public List<AuthorizationResource> getAuthorizationResources() {
+            return List.of();
+        }
+
+        @Override
+        public String getResult(List<Long> authorizedResourceIds) {
+            return "NOPE";
+        }
+
+        @Override
+        public String getLegacyResult() {
+            return "NOPE";
         }
     }
 

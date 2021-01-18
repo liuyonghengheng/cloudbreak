@@ -3739,6 +3739,1862 @@ public final class AuthorizationProto {
 
   }
 
+  public interface ResourceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:authorization.Resource)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * The resource to check if any. If no resource is specified or '*' is
+     * specified then the resource to check will resolve to the account CRN
+     * for the account of the actorCrn specified. The account CRN represents
+     * all resources in the account.
+     * </pre>
+     *
+     * <code>string resource = 1;</code>
+     */
+    java.lang.String getResource();
+    /**
+     * <pre>
+     * The resource to check if any. If no resource is specified or '*' is
+     * specified then the resource to check will resolve to the account CRN
+     * for the account of the actorCrn specified. The account CRN represents
+     * all resources in the account.
+     * </pre>
+     *
+     * <code>string resource = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getResourceBytes();
+  }
+  /**
+   * Protobuf type {@code authorization.Resource}
+   */
+  public  static final class Resource extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:authorization.Resource)
+      ResourceOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Resource.newBuilder() to construct.
+    private Resource(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Resource() {
+      resource_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Resource(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              resource_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_Resource_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_Resource_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.class, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder.class);
+    }
+
+    public static final int RESOURCE_FIELD_NUMBER = 1;
+    private volatile java.lang.Object resource_;
+    /**
+     * <pre>
+     * The resource to check if any. If no resource is specified or '*' is
+     * specified then the resource to check will resolve to the account CRN
+     * for the account of the actorCrn specified. The account CRN represents
+     * all resources in the account.
+     * </pre>
+     *
+     * <code>string resource = 1;</code>
+     */
+    public java.lang.String getResource() {
+      java.lang.Object ref = resource_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        resource_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The resource to check if any. If no resource is specified or '*' is
+     * specified then the resource to check will resolve to the account CRN
+     * for the account of the actorCrn specified. The account CRN represents
+     * all resources in the account.
+     * </pre>
+     *
+     * <code>string resource = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getResourceBytes() {
+      java.lang.Object ref = resource_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        resource_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getResourceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, resource_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getResourceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, resource_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource)) {
+        return super.equals(obj);
+      }
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource other = (com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource) obj;
+
+      boolean result = true;
+      result = result && getResource()
+          .equals(other.getResource());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+      hash = (53 * hash) + getResource().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code authorization.Resource}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:authorization.Resource)
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_Resource_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_Resource_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.class, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder.class);
+      }
+
+      // Construct using com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        resource_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_Resource_descriptor;
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getDefaultInstanceForType() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource build() {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource buildPartial() {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource result = new com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource(this);
+        result.resource_ = resource_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource) {
+          return mergeFrom((com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource other) {
+        if (other == com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.getDefaultInstance()) return this;
+        if (!other.getResource().isEmpty()) {
+          resource_ = other.resource_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object resource_ = "";
+      /**
+       * <pre>
+       * The resource to check if any. If no resource is specified or '*' is
+       * specified then the resource to check will resolve to the account CRN
+       * for the account of the actorCrn specified. The account CRN represents
+       * all resources in the account.
+       * </pre>
+       *
+       * <code>string resource = 1;</code>
+       */
+      public java.lang.String getResource() {
+        java.lang.Object ref = resource_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          resource_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The resource to check if any. If no resource is specified or '*' is
+       * specified then the resource to check will resolve to the account CRN
+       * for the account of the actorCrn specified. The account CRN represents
+       * all resources in the account.
+       * </pre>
+       *
+       * <code>string resource = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getResourceBytes() {
+        java.lang.Object ref = resource_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          resource_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The resource to check if any. If no resource is specified or '*' is
+       * specified then the resource to check will resolve to the account CRN
+       * for the account of the actorCrn specified. The account CRN represents
+       * all resources in the account.
+       * </pre>
+       *
+       * <code>string resource = 1;</code>
+       */
+      public Builder setResource(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        resource_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The resource to check if any. If no resource is specified or '*' is
+       * specified then the resource to check will resolve to the account CRN
+       * for the account of the actorCrn specified. The account CRN represents
+       * all resources in the account.
+       * </pre>
+       *
+       * <code>string resource = 1;</code>
+       */
+      public Builder clearResource() {
+        
+        resource_ = getDefaultInstance().getResource();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The resource to check if any. If no resource is specified or '*' is
+       * specified then the resource to check will resolve to the account CRN
+       * for the account of the actorCrn specified. The account CRN represents
+       * all resources in the account.
+       * </pre>
+       *
+       * <code>string resource = 1;</code>
+       */
+      public Builder setResourceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        resource_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:authorization.Resource)
+    }
+
+    // @@protoc_insertion_point(class_scope:authorization.Resource)
+    private static final com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource();
+    }
+
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Resource>
+        PARSER = new com.google.protobuf.AbstractParser<Resource>() {
+      @java.lang.Override
+      public Resource parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Resource(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Resource> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Resource> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface HasRightOnResourcesRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:authorization.HasRightOnResourcesRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * The CRN of the actor to check.
+     * </pre>
+     *
+     * <code>string actorCrn = 1;</code>
+     */
+    java.lang.String getActorCrn();
+    /**
+     * <pre>
+     * The CRN of the actor to check.
+     * </pre>
+     *
+     * <code>string actorCrn = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getActorCrnBytes();
+
+    /**
+     * <pre>
+     * The right to check.
+     * </pre>
+     *
+     * <code>string right = 2;</code>
+     */
+    java.lang.String getRight();
+    /**
+     * <pre>
+     * The right to check.
+     * </pre>
+     *
+     * <code>string right = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getRightBytes();
+
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> 
+        getResourceList();
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getResource(int index);
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    int getResourceCount();
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    java.util.List<? extends com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder> 
+        getResourceOrBuilderList();
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder getResourceOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code authorization.HasRightOnResourcesRequest}
+   */
+  public  static final class HasRightOnResourcesRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:authorization.HasRightOnResourcesRequest)
+      HasRightOnResourcesRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use HasRightOnResourcesRequest.newBuilder() to construct.
+    private HasRightOnResourcesRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private HasRightOnResourcesRequest() {
+      actorCrn_ = "";
+      right_ = "";
+      resource_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private HasRightOnResourcesRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              actorCrn_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              right_ = s;
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                resource_ = new java.util.ArrayList<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              resource_.add(
+                  input.readMessage(com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.parser(), extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          resource_ = java.util.Collections.unmodifiableList(resource_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_HasRightOnResourcesRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_HasRightOnResourcesRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.class, com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int ACTORCRN_FIELD_NUMBER = 1;
+    private volatile java.lang.Object actorCrn_;
+    /**
+     * <pre>
+     * The CRN of the actor to check.
+     * </pre>
+     *
+     * <code>string actorCrn = 1;</code>
+     */
+    public java.lang.String getActorCrn() {
+      java.lang.Object ref = actorCrn_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        actorCrn_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The CRN of the actor to check.
+     * </pre>
+     *
+     * <code>string actorCrn = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getActorCrnBytes() {
+      java.lang.Object ref = actorCrn_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        actorCrn_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int RIGHT_FIELD_NUMBER = 2;
+    private volatile java.lang.Object right_;
+    /**
+     * <pre>
+     * The right to check.
+     * </pre>
+     *
+     * <code>string right = 2;</code>
+     */
+    public java.lang.String getRight() {
+      java.lang.Object ref = right_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        right_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * The right to check.
+     * </pre>
+     *
+     * <code>string right = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getRightBytes() {
+      java.lang.Object ref = right_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        right_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int RESOURCE_FIELD_NUMBER = 3;
+    private java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> resource_;
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    public java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> getResourceList() {
+      return resource_;
+    }
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    public java.util.List<? extends com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder> 
+        getResourceOrBuilderList() {
+      return resource_;
+    }
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    public int getResourceCount() {
+      return resource_.size();
+    }
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getResource(int index) {
+      return resource_.get(index);
+    }
+    /**
+     * <pre>
+     * The resources.
+     * </pre>
+     *
+     * <code>repeated .authorization.Resource resource = 3;</code>
+     */
+    public com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder getResourceOrBuilder(
+        int index) {
+      return resource_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getActorCrnBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, actorCrn_);
+      }
+      if (!getRightBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, right_);
+      }
+      for (int i = 0; i < resource_.size(); i++) {
+        output.writeMessage(3, resource_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getActorCrnBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, actorCrn_);
+      }
+      if (!getRightBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, right_);
+      }
+      for (int i = 0; i < resource_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, resource_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest)) {
+        return super.equals(obj);
+      }
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest other = (com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest) obj;
+
+      boolean result = true;
+      result = result && getActorCrn()
+          .equals(other.getActorCrn());
+      result = result && getRight()
+          .equals(other.getRight());
+      result = result && getResourceList()
+          .equals(other.getResourceList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ACTORCRN_FIELD_NUMBER;
+      hash = (53 * hash) + getActorCrn().hashCode();
+      hash = (37 * hash) + RIGHT_FIELD_NUMBER;
+      hash = (53 * hash) + getRight().hashCode();
+      if (getResourceCount() > 0) {
+        hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+        hash = (53 * hash) + getResourceList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code authorization.HasRightOnResourcesRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:authorization.HasRightOnResourcesRequest)
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_HasRightOnResourcesRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_HasRightOnResourcesRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.class, com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.Builder.class);
+      }
+
+      // Construct using com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getResourceFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        actorCrn_ = "";
+
+        right_ = "";
+
+        if (resourceBuilder_ == null) {
+          resource_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          resourceBuilder_.clear();
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.internal_static_authorization_HasRightOnResourcesRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest getDefaultInstanceForType() {
+        return com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest build() {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest buildPartial() {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest result = new com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        result.actorCrn_ = actorCrn_;
+        result.right_ = right_;
+        if (resourceBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            resource_ = java.util.Collections.unmodifiableList(resource_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.resource_ = resource_;
+        } else {
+          result.resource_ = resourceBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest) {
+          return mergeFrom((com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest other) {
+        if (other == com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.getDefaultInstance()) return this;
+        if (!other.getActorCrn().isEmpty()) {
+          actorCrn_ = other.actorCrn_;
+          onChanged();
+        }
+        if (!other.getRight().isEmpty()) {
+          right_ = other.right_;
+          onChanged();
+        }
+        if (resourceBuilder_ == null) {
+          if (!other.resource_.isEmpty()) {
+            if (resource_.isEmpty()) {
+              resource_ = other.resource_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+            } else {
+              ensureResourceIsMutable();
+              resource_.addAll(other.resource_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.resource_.isEmpty()) {
+            if (resourceBuilder_.isEmpty()) {
+              resourceBuilder_.dispose();
+              resourceBuilder_ = null;
+              resource_ = other.resource_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+              resourceBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getResourceFieldBuilder() : null;
+            } else {
+              resourceBuilder_.addAllMessages(other.resource_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object actorCrn_ = "";
+      /**
+       * <pre>
+       * The CRN of the actor to check.
+       * </pre>
+       *
+       * <code>string actorCrn = 1;</code>
+       */
+      public java.lang.String getActorCrn() {
+        java.lang.Object ref = actorCrn_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          actorCrn_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The CRN of the actor to check.
+       * </pre>
+       *
+       * <code>string actorCrn = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getActorCrnBytes() {
+        java.lang.Object ref = actorCrn_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          actorCrn_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The CRN of the actor to check.
+       * </pre>
+       *
+       * <code>string actorCrn = 1;</code>
+       */
+      public Builder setActorCrn(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        actorCrn_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The CRN of the actor to check.
+       * </pre>
+       *
+       * <code>string actorCrn = 1;</code>
+       */
+      public Builder clearActorCrn() {
+        
+        actorCrn_ = getDefaultInstance().getActorCrn();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The CRN of the actor to check.
+       * </pre>
+       *
+       * <code>string actorCrn = 1;</code>
+       */
+      public Builder setActorCrnBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        actorCrn_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object right_ = "";
+      /**
+       * <pre>
+       * The right to check.
+       * </pre>
+       *
+       * <code>string right = 2;</code>
+       */
+      public java.lang.String getRight() {
+        java.lang.Object ref = right_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          right_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The right to check.
+       * </pre>
+       *
+       * <code>string right = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getRightBytes() {
+        java.lang.Object ref = right_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          right_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * The right to check.
+       * </pre>
+       *
+       * <code>string right = 2;</code>
+       */
+      public Builder setRight(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        right_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The right to check.
+       * </pre>
+       *
+       * <code>string right = 2;</code>
+       */
+      public Builder clearRight() {
+        
+        right_ = getDefaultInstance().getRight();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The right to check.
+       * </pre>
+       *
+       * <code>string right = 2;</code>
+       */
+      public Builder setRightBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        right_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> resource_ =
+        java.util.Collections.emptyList();
+      private void ensureResourceIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          resource_ = new java.util.ArrayList<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource>(resource_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder, com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder> resourceBuilder_;
+
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> getResourceList() {
+        if (resourceBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(resource_);
+        } else {
+          return resourceBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public int getResourceCount() {
+        if (resourceBuilder_ == null) {
+          return resource_.size();
+        } else {
+          return resourceBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource getResource(int index) {
+        if (resourceBuilder_ == null) {
+          return resource_.get(index);
+        } else {
+          return resourceBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder setResource(
+          int index, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureResourceIsMutable();
+          resource_.set(index, value);
+          onChanged();
+        } else {
+          resourceBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder setResource(
+          int index, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          ensureResourceIsMutable();
+          resource_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          resourceBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder addResource(com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureResourceIsMutable();
+          resource_.add(value);
+          onChanged();
+        } else {
+          resourceBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder addResource(
+          int index, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureResourceIsMutable();
+          resource_.add(index, value);
+          onChanged();
+        } else {
+          resourceBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder addResource(
+          com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          ensureResourceIsMutable();
+          resource_.add(builderForValue.build());
+          onChanged();
+        } else {
+          resourceBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder addResource(
+          int index, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          ensureResourceIsMutable();
+          resource_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          resourceBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder addAllResource(
+          java.lang.Iterable<? extends com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource> values) {
+        if (resourceBuilder_ == null) {
+          ensureResourceIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, resource_);
+          onChanged();
+        } else {
+          resourceBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder clearResource() {
+        if (resourceBuilder_ == null) {
+          resource_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+          onChanged();
+        } else {
+          resourceBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public Builder removeResource(int index) {
+        if (resourceBuilder_ == null) {
+          ensureResourceIsMutable();
+          resource_.remove(index);
+          onChanged();
+        } else {
+          resourceBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder getResourceBuilder(
+          int index) {
+        return getResourceFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder getResourceOrBuilder(
+          int index) {
+        if (resourceBuilder_ == null) {
+          return resource_.get(index);  } else {
+          return resourceBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public java.util.List<? extends com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder> 
+           getResourceOrBuilderList() {
+        if (resourceBuilder_ != null) {
+          return resourceBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(resource_);
+        }
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder addResourceBuilder() {
+        return getResourceFieldBuilder().addBuilder(
+            com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder addResourceBuilder(
+          int index) {
+        return getResourceFieldBuilder().addBuilder(
+            index, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * The resources.
+       * </pre>
+       *
+       * <code>repeated .authorization.Resource resource = 3;</code>
+       */
+      public java.util.List<com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder> 
+           getResourceBuilderList() {
+        return getResourceFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder, com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder> 
+          getResourceFieldBuilder() {
+        if (resourceBuilder_ == null) {
+          resourceBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource, com.cloudera.thunderhead.service.authorization.AuthorizationProto.Resource.Builder, com.cloudera.thunderhead.service.authorization.AuthorizationProto.ResourceOrBuilder>(
+                  resource_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
+          resource_ = null;
+        }
+        return resourceBuilder_;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:authorization.HasRightOnResourcesRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:authorization.HasRightOnResourcesRequest)
+    private static final com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest();
+    }
+
+    public static com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<HasRightOnResourcesRequest>
+        PARSER = new com.google.protobuf.AbstractParser<HasRightOnResourcesRequest>() {
+      @java.lang.Override
+      public HasRightOnResourcesRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new HasRightOnResourcesRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<HasRightOnResourcesRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<HasRightOnResourcesRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_authorization_RightCheck_descriptor;
   private static final 
@@ -3764,6 +5620,16 @@ public final class AuthorizationProto {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_authorization_HasRightsResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_authorization_Resource_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_authorization_Resource_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_authorization_HasRightOnResourcesRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_authorization_HasRightOnResourcesRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -3780,16 +5646,22 @@ public final class AuthorizationProto {
       "rization.RightCheck\"\024\n\022CheckRightRespons" +
       "e\"N\n\020HasRightsRequest\022\020\n\010actorCrn\030\001 \001(\t\022" +
       "(\n\005check\030\002 \003(\0132\031.authorization.RightChec" +
-      "k\"#\n\021HasRightsResponse\022\016\n\006result\030\001 \003(\0102\371" +
-      "\001\n\rAuthorization\022A\n\nGetVersion\022\027.version" +
-      ".VersionRequest\032\030.version.VersionRespons" +
-      "e\"\000\022S\n\nCheckRight\022 .authorization.CheckR" +
-      "ightRequest\032!.authorization.CheckRightRe" +
-      "sponse\"\000\022P\n\tHasRights\022\037.authorization.Ha" +
-      "sRightsRequest\032 .authorization.HasRights" +
-      "Response\"\000BD\n.com.cloudera.thunderhead.s" +
-      "ervice.authorizationB\022AuthorizationProto" +
-      "b\006proto3"
+      "k\"#\n\021HasRightsResponse\022\016\n\006result\030\001 \003(\010\"\034" +
+      "\n\010Resource\022\020\n\010resource\030\001 \001(\t\"h\n\032HasRight" +
+      "OnResourcesRequest\022\020\n\010actorCrn\030\001 \001(\t\022\r\n\005" +
+      "right\030\002 \001(\t\022)\n\010resource\030\003 \003(\0132\027.authoriz" +
+      "ation.Resource2\337\002\n\rAuthorization\022A\n\nGetV" +
+      "ersion\022\027.version.VersionRequest\032\030.versio" +
+      "n.VersionResponse\"\000\022S\n\nCheckRight\022 .auth" +
+      "orization.CheckRightRequest\032!.authorizat" +
+      "ion.CheckRightResponse\"\000\022P\n\tHasRights\022\037." +
+      "authorization.HasRightsRequest\032 .authori" +
+      "zation.HasRightsResponse\"\000\022d\n\023HasRightOn" +
+      "Resources\022).authorization.HasRightOnReso" +
+      "urcesRequest\032 .authorization.HasRightsRe" +
+      "sponse\"\000BD\n.com.cloudera.thunderhead.ser" +
+      "vice.authorizationB\022AuthorizationProtob\006" +
+      "proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3834,6 +5706,18 @@ public final class AuthorizationProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_authorization_HasRightsResponse_descriptor,
         new java.lang.String[] { "Result", });
+    internal_static_authorization_Resource_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_authorization_Resource_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_authorization_Resource_descriptor,
+        new java.lang.String[] { "Resource", });
+    internal_static_authorization_HasRightOnResourcesRequest_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_authorization_HasRightOnResourcesRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_authorization_HasRightOnResourcesRequest_descriptor,
+        new java.lang.String[] { "ActorCrn", "Right", "Resource", });
     com.cloudera.thunderhead.service.common.version.Version.getDescriptor();
   }
 

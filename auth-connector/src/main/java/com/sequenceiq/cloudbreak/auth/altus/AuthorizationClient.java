@@ -68,6 +68,21 @@ public class AuthorizationClient {
         return response.getResultList();
     }
 
+    public List<Boolean> hasRightOnResources(String requestId, String actorCrn, String right, Iterable<AuthorizationProto.Resource> resources) {
+        checkNotNull(requestId);
+        checkNotNull(actorCrn);
+        checkNotNull(resources);
+        return newStub(requestId)
+                .hasRightOnResources(
+                        AuthorizationProto.HasRightOnResourcesRequest
+                                .newBuilder()
+                                .setActorCrn(actorCrn)
+                                .setRight(right)
+                                .addAllResource(resources)
+                                .build())
+                .getResultList();
+    }
+
     /**
      * Creates a new stub with the appropriate metadata injecting interceptors.
      *

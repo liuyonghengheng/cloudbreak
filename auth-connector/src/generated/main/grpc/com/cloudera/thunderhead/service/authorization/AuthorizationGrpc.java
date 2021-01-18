@@ -1,18 +1,10 @@
 package com.cloudera.thunderhead.service.authorization;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
-import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 import static io.grpc.stub.ClientCalls.futureUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 /**
@@ -142,6 +134,43 @@ public final class AuthorizationGrpc {
      }
      return getHasRightsMethod;
   }
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getHasRightOnResourcesMethod()} instead. 
+  public static final io.grpc.MethodDescriptor<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest,
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> METHOD_HAS_RIGHT_ON_RESOURCES = getHasRightOnResourcesMethodHelper();
+
+  private static volatile io.grpc.MethodDescriptor<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest,
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> getHasRightOnResourcesMethod;
+
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static io.grpc.MethodDescriptor<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest,
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> getHasRightOnResourcesMethod() {
+    return getHasRightOnResourcesMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest,
+      com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> getHasRightOnResourcesMethodHelper() {
+    io.grpc.MethodDescriptor<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest, com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> getHasRightOnResourcesMethod;
+    if ((getHasRightOnResourcesMethod = AuthorizationGrpc.getHasRightOnResourcesMethod) == null) {
+      synchronized (AuthorizationGrpc.class) {
+        if ((getHasRightOnResourcesMethod = AuthorizationGrpc.getHasRightOnResourcesMethod) == null) {
+          AuthorizationGrpc.getHasRightOnResourcesMethod = getHasRightOnResourcesMethod = 
+              io.grpc.MethodDescriptor.<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest, com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(
+                  "authorization.Authorization", "HasRightOnResources"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse.getDefaultInstance()))
+                  .setSchemaDescriptor(new AuthorizationMethodDescriptorSupplier("HasRightOnResources"))
+                  .build();
+          }
+        }
+     }
+     return getHasRightOnResourcesMethod;
+  }
 
   /**
    * Creates a new async stub that supports all call types for the service
@@ -209,6 +238,20 @@ public final class AuthorizationGrpc {
       asyncUnimplementedUnaryCall(getHasRightsMethodHelper(), responseObserver);
     }
 
+    /**
+     * <pre>
+     * Performs a number of rights checks returning results rather than throwing.
+     * This call should be used by clients to perform multiple rights checks as
+     * part of a single operation. It is the caller's responsibility to craft an
+     * appropriate error if the results indicate authorization failure. See
+     * Scrutinizer.java for examples of user-appropriate errors.
+     * </pre>
+     */
+    public void hasRightOnResources(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest request,
+        io.grpc.stub.StreamObserver<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(getHasRightOnResourcesMethodHelper(), responseObserver);
+    }
+
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
@@ -232,6 +275,13 @@ public final class AuthorizationGrpc {
                 com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsRequest,
                 com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse>(
                   this, METHODID_HAS_RIGHTS)))
+          .addMethod(
+            getHasRightOnResourcesMethodHelper(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest,
+                com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse>(
+                  this, METHODID_HAS_RIGHT_ON_RESOURCES)))
           .build();
     }
   }
@@ -295,6 +345,21 @@ public final class AuthorizationGrpc {
       asyncUnaryCall(
           getChannel().newCall(getHasRightsMethodHelper(), getCallOptions()), request, responseObserver);
     }
+
+    /**
+     * <pre>
+     * Performs a number of rights checks returning results rather than throwing.
+     * This call should be used by clients to perform multiple rights checks as
+     * part of a single operation. It is the caller's responsibility to craft an
+     * appropriate error if the results indicate authorization failure. See
+     * Scrutinizer.java for examples of user-appropriate errors.
+     * </pre>
+     */
+    public void hasRightOnResources(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest request,
+        io.grpc.stub.StreamObserver<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(getHasRightOnResourcesMethodHelper(), getCallOptions()), request, responseObserver);
+    }
   }
 
   /**
@@ -352,6 +417,20 @@ public final class AuthorizationGrpc {
     public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse hasRights(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsRequest request) {
       return blockingUnaryCall(
           getChannel(), getHasRightsMethodHelper(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Performs a number of rights checks returning results rather than throwing.
+     * This call should be used by clients to perform multiple rights checks as
+     * part of a single operation. It is the caller's responsibility to craft an
+     * appropriate error if the results indicate authorization failure. See
+     * Scrutinizer.java for examples of user-appropriate errors.
+     * </pre>
+     */
+    public com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse hasRightOnResources(com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getHasRightOnResourcesMethodHelper(), getCallOptions(), request);
     }
   }
 
@@ -414,11 +493,27 @@ public final class AuthorizationGrpc {
       return futureUnaryCall(
           getChannel().newCall(getHasRightsMethodHelper(), getCallOptions()), request);
     }
+
+    /**
+     * <pre>
+     * Performs a number of rights checks returning results rather than throwing.
+     * This call should be used by clients to perform multiple rights checks as
+     * part of a single operation. It is the caller's responsibility to craft an
+     * appropriate error if the results indicate authorization failure. See
+     * Scrutinizer.java for examples of user-appropriate errors.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse> hasRightOnResources(
+        com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getHasRightOnResourcesMethodHelper(), getCallOptions()), request);
+    }
   }
 
   private static final int METHODID_GET_VERSION = 0;
   private static final int METHODID_CHECK_RIGHT = 1;
   private static final int METHODID_HAS_RIGHTS = 2;
+  private static final int METHODID_HAS_RIGHT_ON_RESOURCES = 3;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -447,6 +542,10 @@ public final class AuthorizationGrpc {
           break;
         case METHODID_HAS_RIGHTS:
           serviceImpl.hasRights((com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsRequest) request,
+              (io.grpc.stub.StreamObserver<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse>) responseObserver);
+          break;
+        case METHODID_HAS_RIGHT_ON_RESOURCES:
+          serviceImpl.hasRightOnResources((com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightOnResourcesRequest) request,
               (io.grpc.stub.StreamObserver<com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsResponse>) responseObserver);
           break;
         default:
@@ -513,6 +612,7 @@ public final class AuthorizationGrpc {
               .addMethod(getGetVersionMethodHelper())
               .addMethod(getCheckRightMethodHelper())
               .addMethod(getHasRightsMethodHelper())
+              .addMethod(getHasRightOnResourcesMethodHelper())
               .build();
         }
       }

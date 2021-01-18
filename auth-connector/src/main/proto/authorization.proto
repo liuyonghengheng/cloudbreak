@@ -28,6 +28,13 @@ service Authorization {
   rpc HasRights (HasRightsRequest)
     returns (HasRightsResponse) {}
 
+  // Performs a number of rights checks returning results rather than throwing.
+  // This call should be used by clients to perform multiple rights checks as
+  // part of a single operation. It is the caller's responsibility to craft an
+  // appropriate error if the results indicate authorization failure. See
+  // Scrutinizer.java for examples of user-appropriate errors.
+  rpc HasRightOnResources (HasRightOnResourcesRequest)
+  returns (HasRightsResponse) {}
 }
 
 // Object representing the check of a single right.
@@ -58,4 +65,21 @@ message HasRightsRequest {
 message HasRightsResponse {
   // The results of the checks.
   repeated bool result = 1;
+}
+
+message Resource {
+    // The resource to check if any. If no resource is specified or '*' is
+    // specified then the resource to check will resolve to the account CRN
+    // for the account of the actorCrn specified. The account CRN represents
+    // all resources in the account.
+    string resource = 1;
+}
+
+message HasRightOnResourcesRequest {
+    // The CRN of the actor to check.
+    string actorCrn = 1;
+    // The right to check.
+    string right = 2;
+    // The resources.
+    repeated Resource resource = 3;
 }

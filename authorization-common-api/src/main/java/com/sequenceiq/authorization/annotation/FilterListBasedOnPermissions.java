@@ -6,10 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
+import com.sequenceiq.authorization.resource.ListResourceProvider;
 
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface FilterListBasedOnPermissions {
     AuthorizationResourceAction action();
+
+    Class<? extends ListResourceProvider<?>> provider();
 }
