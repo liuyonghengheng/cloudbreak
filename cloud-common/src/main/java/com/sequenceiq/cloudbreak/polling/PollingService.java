@@ -57,7 +57,7 @@ public class PollingService<T> {
                 LOGGER.debug(statusCheckerTask.successMessage(t));
                 LOGGER.debug("Set the number of consecutive failures to 0, since we received a positve answer. Original number of consecutiveFailures: {}",
                         consecutiveFailures);
-                consecutiveFailures = 0;
+                consecutiveFailures = 0; // why do we have to set this value when we are going to exit from this function?
                 return new ImmutablePair<>(PollingResult.SUCCESS, actual);
             }
             sleep(interval);
