@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -171,7 +172,7 @@ public class PermissionCheckServiceTest {
         ThreadBasedUserCrnProvider.doAs(USER_CRN, () -> underTest.hasPermission(proceedingJoinPoint));
 
         verify(listAuthorizationService).filterList(any(FilterListBasedOnPermissions.class), eq(Crn.safeFromString(USER_CRN)),
-                eq(proceedingJoinPoint), any());
+                eq(proceedingJoinPoint), eq(methodSignature), any());
         verify(commonPermissionCheckingUtils, times(0)).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
@@ -187,7 +188,7 @@ public class PermissionCheckServiceTest {
 
         verify(accountAuthorizationService).authorize(any(CheckPermissionByAccount.class), eq(USER_CRN));
         verify(listAuthorizationService).filterList(any(FilterListBasedOnPermissions.class), eq(Crn.safeFromString(USER_CRN)),
-                eq(proceedingJoinPoint), any());
+                eq(proceedingJoinPoint), eq(methodSignature), any());
         verify(commonPermissionCheckingUtils, times(0)).proceed(eq(proceedingJoinPoint), eq(methodSignature), anyLong());
         verifyNoInteractions(
                 internalUserModifier,
@@ -294,7 +295,7 @@ public class PermissionCheckServiceTest {
     static class ExampleListAuthorizationProvider implements ListResourceProvider<String> {
 
         @Override
-        public List<AuthorizationResource> getAuthorizationResources() {
+        public List<AuthorizationResource> getAuthorizationResources(Map<String, Object> params) {
             return List.of();
         }
 

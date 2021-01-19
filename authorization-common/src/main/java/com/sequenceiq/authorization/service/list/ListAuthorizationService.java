@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,6 @@ import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
 import com.sequenceiq.authorization.resource.ListResourceProvider;
 import com.sequenceiq.authorization.service.UmsRightProvider;
-import com.sequenceiq.authorization.service.model.AuthorizedList;
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
 import com.sequenceiq.cloudbreak.auth.altus.GrpcUmsClient;
@@ -30,6 +30,8 @@ import com.sequenceiq.cloudbreak.auth.altus.GrpcUmsClient;
 public class ListAuthorizationService {
 
     private static final String NO_RIGHT_IN_ACCOUNT = "You have no right to perform %s in account %s.";
+
+    private static final ThreadLocal<Object> AUTHORIZED_DATA = new ThreadLocal<>();
 
     @Inject
     private Map<Class<ListResourceProvider<?>>, ListResourceProvider<?>> listResourceProviders;
@@ -43,22 +45,39 @@ public class ListAuthorizationService {
     @Inject
     private GrpcUmsClient grpcUmsClient;
 
-    public Object filterList(FilterListBasedOnPermissions annotation, Crn userCrn, ProceedingJoinPoint proceedingJoinPoint, Optional<String> requestId) {
+    @Inject
+    private ListParamsUtil listParamsUtil;
+
+    public <T> T getResultAs(Class<T> clazz) {
+        Object data = AUTHORIZED_DATA.get();
+        if (clazz.isAssignableFrom(data.getClass())) {
+            return (T) data;
+        } else {
+            throw new RuntimeException("Authorization failed. Could't set authorized response.");
+        }
+    }
+
+    public Object filterList(FilterListBasedOnPermissions annotation, Crn userCrn, ProceedingJoinPoint proceedingJoinPoint, MethodSignature methodSignature,
+            Optional<String> requestId) {
         AuthorizationResourceAction action = annotation.action();
         ListResourceProvider<?> listResourceProvider = listResourceProviders.get(annotation.provider());
-        AuthorizedList authorizedList;
+        Object authorizedData;
         if (entitlementService.listFilteringEnabled(userCrn.getAccountId())) {
-            List<AuthorizationResource> resources = listResourceProvider.getAuthorizationResources();
+            Map<String, Object> arguments = listParamsUtil.getFilterParams(methodSignature.getMethod(), proceedingJoinPoint);
+            List<AuthorizationResource> resources = listResourceProvider.getAuthorizationResources(arguments);
             List<Long> authorizedResourceIds = getAuthorizedResourceIds(userCrn, action, resources, requestId);
-            authorizedList = new AuthorizedList(listResourceProvider.getResult(authorizedResourceIds));
+            authorizedData = listResourceProvider.getResult(authorizedResourceIds);
         } else {
             checkAccountRight(userCrn, action, requestId);
-            authorizedList = new AuthorizedList(listResourceProvider.getLegacyResult());
+            authorizedData = listResourceProvider.getLegacyResult();
         }
         try {
-            return proceedingJoinPoint.proceed(new Object[]{authorizedList});
+            AUTHORIZED_DATA.set(authorizedData);
+            return proceedingJoinPoint.proceed();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
+        } finally {
+            AUTHORIZED_DATA.remove();
         }
     }
 

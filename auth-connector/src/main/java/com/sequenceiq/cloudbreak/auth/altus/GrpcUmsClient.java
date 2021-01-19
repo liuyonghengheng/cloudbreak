@@ -497,7 +497,6 @@ public class GrpcUmsClient {
                 Collectors.toMap(resource -> resource, resource -> result.get(resources.indexOf(resource))));
     }
 
-
     public List<Boolean> hasRightsOnResources(String actorCrn, String memberCrn, List<String> resourceCrns, String right, Optional<String> requestId) {
         if (CollectionUtils.isEmpty(resourceCrns)) {
             return List.of();

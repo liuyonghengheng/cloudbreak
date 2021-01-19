@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,6 @@ import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
 import com.sequenceiq.authorization.resource.ListResourceProvider;
 import com.sequenceiq.authorization.service.UmsRightProvider;
-import com.sequenceiq.authorization.service.model.AuthorizedList;
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.altus.CrnResourceDescriptor;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
@@ -72,33 +72,45 @@ public class ListAuthorizationServiceTest {
     @Mock
     private GrpcUmsClient grpcUmsClient;
 
+    @Mock
+    private ListParamsUtil listParamsUtil;
+
     @InjectMocks
     private ListAuthorizationService underTest;
 
     @Mock
     private ProceedingJoinPoint proceedingJoinPoint;
 
+    @Mock
+    private MethodSignature methodSignature;
+
     private FilterListBasedOnPermissions checkList;
 
     @BeforeEach
-    public void setUp() {
+    //CHECKSTYLE:OFF
+    public void setUp() throws Throwable {
+        //CHECKSTYLE:ON
         listResourceProviders.put((Class<ListResourceProvider<?>>) listResourceProvider.getClass(), listResourceProvider);
         checkList = annotation((Class<ListResourceProvider<?>>) listResourceProvider.getClass(), ACTION);
         lenient().doAnswer(invocation -> invocation.getArgument(0)).when(listResourceProvider).getResult(anyList());
         lenient().doAnswer(i -> List.of(1000L)).when(listResourceProvider).getLegacyResult();
+        lenient().doAnswer(i -> underTest.getResultAs(List.class)).when(proceedingJoinPoint).proceed();
+        lenient().when(listParamsUtil.getFilterParams(any(), any())).thenReturn(Map.of());
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testLegacyAuthorizationWhenHasRight() throws Throwable {
+        //CHECKSTYLE:ON
         disableListFiltering();
         disableResourceBasedAuthorization();
         when(umsRightProvider.getLegacyRight(ACTION)).thenReturn(LEGACY_RIGHT);
         when(grpcUmsClient.checkAccountRightLegacy(USER_CRN.toString(), USER_CRN.toString(), LEGACY_RIGHT, REQUEST_ID))
                 .thenReturn(true);
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnNotFilteredResult();
+        verifyHasRightOnNotFilteredResult(result);
     }
 
     @Test
@@ -110,51 +122,59 @@ public class ListAuthorizationServiceTest {
                 .thenReturn(false);
 
         AccessDeniedException exception =
-                assertThrows(AccessDeniedException.class, () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID));
+                assertThrows(AccessDeniedException.class,
+                        () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID));
 
         assertEquals("You have no right to perform LEGACY_RIGHT in account ACCOUNT_ID.", exception.getMessage());
         verifyNoInteractions(listResourceProvider, proceedingJoinPoint);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testResourceAuthorizationWhenListFilteringDisabledAndHasRight() throws Throwable {
+        //CHECKSTYLE:ON
         disableListFiltering();
         enableResourceBasedAuthorization();
         when(grpcUmsClient.checkAccountRight(USER_CRN.toString(), USER_CRN.toString(), ACTION.getRight(), REQUEST_ID))
                 .thenReturn(true);
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnNotFilteredResult();
+        verifyHasRightOnNotFilteredResult(result);
     }
 
     @Test
-    public void testResourceAuthorizationWhenListFilteringDisabledAndHasNoRight() throws Throwable {
+    public void testResourceAuthorizationWhenListFilteringDisabledAndHasNoRight() {
         disableListFiltering();
         enableResourceBasedAuthorization();
         when(grpcUmsClient.checkAccountRight(USER_CRN.toString(), USER_CRN.toString(), ACTION.getRight(), REQUEST_ID))
                 .thenReturn(false);
 
         AccessDeniedException exception =
-                assertThrows(AccessDeniedException.class, () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID));
+                assertThrows(AccessDeniedException.class,
+                        () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID));
 
         assertEquals("You have no right to perform datahub/describeDatahub in account ACCOUNT_ID.", exception.getMessage());
         verifyNoInteractions(listResourceProvider, proceedingJoinPoint);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testWithEmptyResourceList() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources();
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
         verifyNoInteractions(grpcUmsClient);
-        verifyHasRightOnAndProceedWith(List.of());
+        verifyHasRightOnAndProceedWith(List.of(), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRight() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources(new AuthorizationResource(1L, ENVIRONMENT_CRN));
         when(grpcUmsClient.hasRightsOnResources(
@@ -164,13 +184,15 @@ public class ListAuthorizationServiceTest {
                 ACTION.getRight(),
                 REQUEST_ID)).thenReturn(List.of(true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L));
+        verifyHasRightOnAndProceedWith(List.of(1L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasNoRight() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources(new AuthorizationResource(1L, ENVIRONMENT_CRN));
         when(grpcUmsClient.hasRightsOnResources(
@@ -180,13 +202,15 @@ public class ListAuthorizationServiceTest {
                 ACTION.getRight(),
                 REQUEST_ID)).thenReturn(List.of(false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of());
+        verifyHasRightOnAndProceedWith(List.of(), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnParent() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources(new AuthorizationResource(1L, DATAHUB_CRN, ENVIRONMENT_CRN));
         when(grpcUmsClient.hasRightsOnResources(
@@ -196,13 +220,15 @@ public class ListAuthorizationServiceTest {
                 ACTION.getRight(),
                 REQUEST_ID)).thenReturn(List.of(true, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L));
+        verifyHasRightOnAndProceedWith(List.of(1L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnResourceWithParant() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources(new AuthorizationResource(1L, DATAHUB_CRN, ENVIRONMENT_CRN));
         when(grpcUmsClient.hasRightsOnResources(
@@ -213,13 +239,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L));
+        verifyHasRightOnAndProceedWith(List.of(1L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasNoRightOnResourceWithParent() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         givenResources(new AuthorizationResource(1L, DATAHUB_CRN, ENVIRONMENT_CRN));
         when(grpcUmsClient.hasRightsOnResources(
@@ -230,13 +258,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of());
+        verifyHasRightOnAndProceedWith(List.of(), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnResourcesParent() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String datahubCrn2 = dataHubCrn("datahub-2");
         String datahubCrn3 = dataHubCrn("datahub-3");
@@ -252,13 +282,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(true, false, false, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnTwoResourceButNotOnItsParent() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String datahubCrn2 = dataHubCrn("datahub-2");
         String datahubCrn3 = dataHubCrn("datahub-3");
@@ -274,13 +306,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, true, false, true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 3L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasNoRightOnAnyResources() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String datahubCrn2 = dataHubCrn("datahub-2");
         String datahubCrn3 = dataHubCrn("datahub-3");
@@ -296,13 +330,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, false, false, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of());
+        verifyHasRightOnAndProceedWith(List.of(), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnOneParentResource() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String environmentCrn2 = environmentCrn("env-2");
         String datahubCrn2 = dataHubCrn("datahub-2");
@@ -320,13 +356,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, false, true, false, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(2L, 3L));
+        verifyHasRightOnAndProceedWith(List.of(2L, 3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnAllParentResources() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String environmentCrn2 = environmentCrn("env-2");
         String datahubCrn2 = dataHubCrn("datahub-2");
@@ -344,13 +382,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(true, false, true, false, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnOneSubResource() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String environmentCrn2 = environmentCrn("env-2");
         String datahubCrn2 = dataHubCrn("datahub-2");
@@ -368,13 +408,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, false, false, false, true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(3L));
+        verifyHasRightOnAndProceedWith(List.of(3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testHasRightOnAllSubResources() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String environmentCrn2 = environmentCrn("env-2");
         String datahubCrn2 = dataHubCrn("datahub-2");
@@ -392,13 +434,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(false, true, false, true, true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testResourcesWithParentAndWithoutParent() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String datahubCrn2 = dataHubCrn("datahub-2");
         String datahubCrn3 = dataHubCrn("datahub-3");
@@ -419,13 +463,15 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(true, false, false, true, false, true));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L, 5L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 2L, 3L, 5L), result);
     }
 
     @Test
+    //CHECKSTYLE:OFF
     public void testFilteringWithUnorderedAuthorizationResourceList() throws Throwable {
+        //CHECKSTYLE:ON
         enableListFiltering();
         String environmentCrn2 = environmentCrn("env-2");
         String datahubCrn2 = dataHubCrn("datahub-2");
@@ -447,9 +493,9 @@ public class ListAuthorizationServiceTest {
                 REQUEST_ID)
         ).thenReturn(List.of(true, false, false, false, false, true, false));
 
-        underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, REQUEST_ID);
+        Object result = underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID);
 
-        verifyHasRightOnAndProceedWith(List.of(1L, 3L, 5L, 2L));
+        verifyHasRightOnAndProceedWith(List.of(1L, 3L, 5L, 2L), result);
     }
 
     private void enableListFiltering() {
@@ -469,17 +515,23 @@ public class ListAuthorizationServiceTest {
     }
 
     private void givenResources(AuthorizationResource... authorizationResources) {
-        when(listResourceProvider.getAuthorizationResources()).thenReturn(List.of(authorizationResources));
+        when(listResourceProvider.getAuthorizationResources(Map.of())).thenReturn(List.of(authorizationResources));
     }
 
-    private void verifyHasRightOnAndProceedWith(List<Long> ids) throws Throwable {
-        verify(listResourceProvider).getResult(ids);
-        verify(proceedingJoinPoint).proceed(new Object[]{new AuthorizedList(ids)});
+    //CHECKSTYLE:OFF
+    private void verifyHasRightOnAndProceedWith(List<Long> expectedIds, Object result) throws Throwable {
+        //CHECKSTYLE:ON
+        assertEquals(expectedIds, result);
+        verify(listResourceProvider).getResult(expectedIds);
+        verify(proceedingJoinPoint).proceed();
     }
 
-    private void verifyHasRightOnNotFilteredResult() throws Throwable {
+    //CHECKSTYLE:OFF
+    private void verifyHasRightOnNotFilteredResult(Object result) throws Throwable {
+        //CHECKSTYLE:ON
         verify(listResourceProvider).getLegacyResult();
-        verify(proceedingJoinPoint).proceed(new Object[]{new AuthorizedList(List.of(1000L))});
+        verify(proceedingJoinPoint).proceed();
+        assertEquals(List.of(1000L), result);
     }
 
     private static String dataHubCrn(String resourceId) {

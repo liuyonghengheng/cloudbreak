@@ -85,7 +85,7 @@ public class PermissionCheckService {
 
         if (hasAnnotation(methodSignature, FilterListBasedOnPermissions.class)) {
             FilterListBasedOnPermissions listFilterAnnotation = methodSignature.getMethod().getAnnotation(FilterListBasedOnPermissions.class);
-            return listAuthorizationService.filterList(listFilterAnnotation, Crn.safeFromString(userCrn), proceedingJoinPoint, getRequestId());
+            return listAuthorizationService.filterList(listFilterAnnotation, Crn.safeFromString(userCrn), proceedingJoinPoint, methodSignature, getRequestId());
         }
 
         resourceAuthorizationService.authorize(userCrn, proceedingJoinPoint, methodSignature, getRequestId());
