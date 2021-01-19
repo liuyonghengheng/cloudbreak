@@ -107,7 +107,7 @@ public class FreeIpaConfigServiceTest {
         when(gatewayConfig.getHostname()).thenReturn(HOSTNAME);
         when(gatewayConfigService.getPrimaryGatewayConfig(any())).thenReturn(gatewayConfig);
 
-        Node node = new Node(PRIVATE_IP, null, null, null, HOSTNAME, DOMAIN, null);
+        Node node = new Node(PRIVATE_IP, null, null, null, HOSTNAME, DOMAIN, (String) null);
         Map<String, String> expectedHost = Map.of("ip", PRIVATE_IP, "fqdn", HOSTNAME);
         Set<Object> expectedHosts = ImmutableSet.of(expectedHost);
 
