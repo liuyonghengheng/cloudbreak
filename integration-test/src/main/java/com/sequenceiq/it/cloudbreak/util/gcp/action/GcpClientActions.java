@@ -62,7 +62,13 @@ public class GcpClientActions extends GcpClient {
                         .instances()
                         .get(getProjectId(), gcpProperties.getAvailabilityZone(), instanceId)
                         .execute();
-                instanceIdDiskNamesMap.put(instanceId, instance.getDisks().stream().map(AttachedDisk::getDeviceName).collect(Collectors.toList()));
+                List<String> attachedDiskNames = instance
+                        .getDisks()
+                        .stream()
+                        .filter(ad -> !ad.getBoot())
+                        .map(AttachedDisk::getDeviceName)
+                        .collect(Collectors.toList());
+                instanceIdDiskNamesMap.put(instanceId, attachedDiskNames);
             } catch (Exception e) {
                 LOGGER.warn(String.format("Failed to get the details of the instance from Gcp with instance id: '%s'", instanceId), e);
             }
