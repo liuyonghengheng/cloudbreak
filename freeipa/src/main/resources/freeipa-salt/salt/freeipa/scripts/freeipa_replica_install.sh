@@ -13,7 +13,14 @@ echo "The first ipaddress of the host is $IPADDR"
 if [ ! -f /etc/resolv.conf.orig ]; then
   cp /etc/resolv.conf /etc/resolv.conf.orig
 fi
-FORWARDERS=$(grep -Ev '^#|^;' /etc/resolv.conf.orig | grep nameserver | awk '{print "--forwarder " $2}');
+NAMESERVER=$(grep -Ev '^#|^;' /etc/resolv.conf.orig | grep nameserver | awk '{print $2}')
+
+if [[ "${NAMESERVER%.*.*}" == "169.254" ]]; then
+  echo "IPA does not work with link-local IP addresses"
+  FORWARDERS="--auto-forwarders"
+else
+  FORWARDERS="--forwarder $NAMESERVER"
+fi
 
 install -m644 /etc/resolv.conf.install /etc/resolv.conf
 
