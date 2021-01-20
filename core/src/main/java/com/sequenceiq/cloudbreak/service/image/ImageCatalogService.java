@@ -12,11 +12,9 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +23,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -48,7 +45,6 @@ import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.altus.CrnResourceDescriptor;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.CloudbreakImageCatalogV3;
-import com.sequenceiq.cloudbreak.cloud.model.catalog.CloudbreakVersion;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.Image;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.Images;
 import com.sequenceiq.cloudbreak.common.exception.BadRequestException;
@@ -97,9 +93,6 @@ public class ImageCatalogService extends AbstractWorkspaceAwareResourceService<I
     private ImageCatalogRepository imageCatalogRepository;
 
     @Inject
-    private ImageCatalogVersionFilter versionFilter;
-
-    @Inject
     private UserProfileService userProfileService;
 
     @Inject
@@ -121,10 +114,10 @@ public class ImageCatalogService extends AbstractWorkspaceAwareResourceService<I
     private TransactionService transactionService;
 
     @Inject
-    private PrefixMatcherService prefixMatcherService;
+    private VersionBasedImageProvider versionBasedImageProvider;
 
     @Inject
-    private LatestDefaultImageUuidProvider latestDefaultImageUuidProvider;
+    private AdvertisedImageProvider advertisedImageProvider;
 
     @Override
     public Set<ImageCatalog> findAllByWorkspaceId(Long workspaceId) {
@@ -430,55 +423,11 @@ public class ImageCatalogService extends AbstractWorkspaceAwareResourceService<I
 
         CloudbreakImageCatalogV3 imageCatalogV3 = imageCatalogProvider.getImageCatalogV3(imageFilter.getImageCatalog().getImageCatalogUrl());
 
-        Set<String> suppertedVersions;
         if (imageCatalogV3 != null) {
             LOGGER.info("Image catalog found, filtering the images..");
 
-            Set<String> vMImageUUIDs = new HashSet<>();
-            Set<String> defaultVMImageUUIDs = new HashSet<>();
-
-            List<CloudbreakVersion> cloudbreakVersions = imageCatalogV3.getVersions().getCloudbreakVersions();
-
-            String currentCbVersion = getCBVersion(imageFilter, cloudbreakVersions);
-
-            List<CloudbreakVersion> exactMatchedImages = cloudbreakVersions.stream()
-                    .filter(cloudbreakVersion -> cloudbreakVersion.getVersions().contains(currentCbVersion)).collect(toList());
-
-            if (!exactMatchedImages.isEmpty()) {
-                for (CloudbreakVersion exactMatchedImg : exactMatchedImages) {
-                    vMImageUUIDs.addAll(exactMatchedImg.getImageIds());
-                    defaultVMImageUUIDs.addAll(exactMatchedImg.getDefaults());
-                }
-                suppertedVersions = Collections.singleton(currentCbVersion);
-            } else {
-                LOGGER.debug("No image found with exact match for version {} Trying prefix matching", currentCbVersion);
-                PrefixMatchImages prefixMatchImages = prefixMatcherService.prefixMatchForCBVersion(imageFilter.getCbVersion(), cloudbreakVersions);
-                vMImageUUIDs.addAll(prefixMatchImages.getvMImageUUIDs());
-                defaultVMImageUUIDs.addAll(prefixMatchImages.getDefaultVMImageUUIDs());
-                suppertedVersions = prefixMatchImages.getSupportedVersions();
-            }
-            LOGGER.info("The following images are matching for CB version ({}): {} ", currentCbVersion, vMImageUUIDs);
-
-            List<Image> baseImages = filterImagesByPlatforms(imageFilter.getPlatforms(), imageCatalogV3.getImages().getBaseImages(), vMImageUUIDs);
-            List<Image> cdhImages = filterImagesByPlatforms(imageFilter.getPlatforms(), imageCatalogV3.getImages().getCdhImages(), vMImageUUIDs);
-
-            List<Image> defaultImages = defaultVMImageUUIDs.stream()
-                    .map(imageId -> getImage(imageId, imageCatalogV3.getImages()))
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.toList());
-
-            Collection<String> latestDefaultImageUuids = latestDefaultImageUuidProvider.getLatestDefaultImageUuids(imageFilter.getPlatforms(), defaultImages);
-            Stream.of(baseImages.stream(), cdhImages.stream())
-                    .reduce(Stream::concat)
-                    .orElseGet(Stream::empty)
-                    .forEach(img -> img.setDefaultImage(latestDefaultImageUuids.contains(img.getUuid())));
-
-            if (!imageFilter.isBaseImageEnabled()) {
-                baseImages.clear();
-            }
-            images = statedImages(new Images(baseImages, cdhImages, suppertedVersions),
-                    imageFilter.getImageCatalog().getImageCatalogUrl(),
-                    imageFilter.getImageCatalog().getName());
+            images = imageCatalogV3.getVersions() == null ? advertisedImageProvider.getImages(imageCatalogV3, imageFilter) :
+                    versionBasedImageProvider.getImages(imageCatalogV3, imageFilter);
         } else {
             LOGGER.warn("Image catalog {} not found, returning empty response", imageFilter.getImageCatalog());
             images = statedImages(emptyImages(),
@@ -486,12 +435,6 @@ public class ImageCatalogService extends AbstractWorkspaceAwareResourceService<I
                     imageFilter.getImageCatalog().getName());
         }
         return images;
-    }
-
-    private String getCBVersion(ImageFilter imageFilter, List<CloudbreakVersion> cloudbreakVersions) {
-        return versionFilter.isVersionUnspecified(imageFilter.getCbVersion())
-                ? versionFilter.latestCloudbreakVersion(cloudbreakVersions)
-                : imageFilter.getCbVersion();
     }
 
     private void validateRequestPlatforms(Set<String> platforms) throws CloudbreakImageCatalogException {

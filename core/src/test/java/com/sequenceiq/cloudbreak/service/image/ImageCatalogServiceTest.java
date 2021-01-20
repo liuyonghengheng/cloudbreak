@@ -167,6 +167,12 @@ public class ImageCatalogServiceTest {
     @Mock
     private LatestDefaultImageUuidProvider latestDefaultImageUuidProvider;
 
+    @InjectMocks
+    private VersionBasedImageProvider versionBasedImageProvider;
+
+    @Mock
+    private AdvertisedImageProvider advertisedImageProvider;
+
     @Before
     public void beforeTest() throws Exception {
         setupImageCatalogProvider(CUSTOM_IMAGE_CATALOG_URL, V2_CATALOG_FILE);
@@ -180,6 +186,8 @@ public class ImageCatalogServiceTest {
 
         ReflectionTestUtils.setField(underTest, ImageCatalogService.class, "defaultCatalogUrl", DEFAULT_CATALOG_URL, null);
         setMockedCbVersion("cbVersion", "unspecified");
+
+        ReflectionTestUtils.setField(underTest, "versionBasedImageProvider", versionBasedImageProvider);
     }
 
     private void setMockedCbVersion(String cbVersion, String versionValue) {
@@ -196,6 +204,20 @@ public class ImageCatalogServiceTest {
 
         assertEquals("7aca1fa6-980c-44e2-a75e-3144b18a5993", image.getImage().getUuid());
         assertFalse(image.getImage().isDefaultImage());
+    }
+
+    @Test
+    public void shouldGetStatedImagesFromAdvertisedImageProvider() throws Exception {
+        setupUserProfileService();
+        setupImageCatalogProviderWithoutVersions(DEFAULT_CATALOG_URL, V2_CATALOG_FILE);
+        when(advertisedImageProvider.getImages(any(), any())).thenReturn(
+                StatedImages.statedImages(
+                        new Images(Collections.singletonList(ImageTestUtil.getImage(false, "uuid", "stack")), null, null), null, null));
+
+        ImageFilter imageFilter = new ImageFilter(imageCatalog, Set.of("AWS"), null, true, null, null);
+        underTest.getLatestBaseImageDefaultPreferred(imageFilter, i -> true);
+
+        verify(advertisedImageProvider).getImages(any(), any());
     }
 
     @Test
@@ -693,6 +715,14 @@ public class ImageCatalogServiceTest {
     private void setupImageCatalogProvider(String catalogUrl, String catalogFile) throws IOException, CloudbreakImageCatalogException {
         String catalogJson = FileReaderUtils.readFileFromClasspath(catalogFile);
         CloudbreakImageCatalogV3 catalog = JsonUtil.readValue(catalogJson, CloudbreakImageCatalogV3.class);
+        when(imageCatalog.getImageCatalogUrl()).thenReturn(catalogUrl);
+        when(imageCatalogProvider.getImageCatalogV3(catalogUrl)).thenReturn(catalog);
+    }
+
+    private void setupImageCatalogProviderWithoutVersions(String catalogUrl, String catalogFile) throws IOException, CloudbreakImageCatalogException {
+        String catalogJson = FileReaderUtils.readFileFromClasspath(catalogFile);
+        CloudbreakImageCatalogV3 catalog = JsonUtil.readValue(catalogJson, CloudbreakImageCatalogV3.class);
+        ReflectionTestUtils.setField(catalog, "versions", null);
         when(imageCatalog.getImageCatalogUrl()).thenReturn(catalogUrl);
         when(imageCatalogProvider.getImageCatalogV3(catalogUrl)).thenReturn(catalog);
     }

@@ -70,7 +70,7 @@ public class CachedImageCatalogProvider {
             }
             catalog = objectMapper.readValue(content, CloudbreakImageCatalogV3.class);
             validateImageCatalogUuids(catalog);
-            validateCloudBreakVersions(catalog);
+            validateAdvertisedImages(catalog);
             cleanAndValidateMaps(catalog);
             catalog = filterImagesByOsType(catalog);
             long timeOfParse = System.currentTimeMillis() - started;
@@ -142,17 +142,19 @@ public class CachedImageCatalogProvider {
     }
 
     private void validateImageCatalogUuids(CloudbreakImageCatalogV3 imageCatalog) throws CloudbreakImageCatalogException {
-        Stream<String> baseUuids = imageCatalog.getImages().getBaseImages().stream().map(Image::getUuid);
-        Stream<String> cdhUuids = imageCatalog.getImages().getCdhImages().stream().map(Image::getUuid);
-        Stream<String> uuidStream = Stream.of(baseUuids, cdhUuids).
-                reduce(Stream::concat).
-                orElseGet(Stream::empty);
-        List<String> uuidList = uuidStream.collect(Collectors.toList());
-        List<String> orphanUuids = imageCatalog.getVersions().getCloudbreakVersions().stream().flatMap(cbv -> cbv.getImageIds().stream()).
-                filter(imageId -> !uuidList.contains(imageId)).collect(Collectors.toList());
-        if (!orphanUuids.isEmpty()) {
-            throw new CloudbreakImageCatalogException(String.format("Images with ids: %s is not present in cdh-images block",
-                    StringUtils.join(orphanUuids, ",")));
+        if (imageCatalog.getVersions() != null) {
+            Stream<String> baseUuids = imageCatalog.getImages().getBaseImages().stream().map(Image::getUuid);
+            Stream<String> cdhUuids = imageCatalog.getImages().getCdhImages().stream().map(Image::getUuid);
+            Stream<String> uuidStream = Stream.of(baseUuids, cdhUuids).
+                    reduce(Stream::concat).
+                    orElseGet(Stream::empty);
+            List<String> uuidList = uuidStream.collect(Collectors.toList());
+            List<String> orphanUuids = imageCatalog.getVersions().getCloudbreakVersions().stream().flatMap(cbv -> cbv.getImageIds().stream()).
+                    filter(imageId -> !uuidList.contains(imageId)).collect(Collectors.toList());
+            if (!orphanUuids.isEmpty()) {
+                throw new CloudbreakImageCatalogException(String.format("Images with ids: %s is not present in cdh-images block",
+                        StringUtils.join(orphanUuids, ",")));
+            }
         }
     }
 
@@ -176,9 +178,10 @@ public class CachedImageCatalogProvider {
                 .allMatch(i -> i.getImageSetsByProvider().isEmpty());
     }
 
-    private void validateCloudBreakVersions(CloudbreakImageCatalogV3 catalog) throws CloudbreakImageCatalogException {
-        if (catalog.getVersions() == null || catalog.getVersions().getCloudbreakVersions().isEmpty()) {
-            throw new CloudbreakImageCatalogException("Cloudbreak versions cannot be NULL");
+    private void validateAdvertisedImages(CloudbreakImageCatalogV3 catalog) throws CloudbreakImageCatalogException {
+        if ((catalog.getVersions() == null || catalog.getVersions().getCloudbreakVersions().isEmpty()) &&
+                catalog.getImages().getCdhImages().stream().noneMatch(i -> i.isAdvertised())) {
+            throw new CloudbreakImageCatalogException("There should be at least one advertised cdh image in case of missing versions");
         }
     }
 }

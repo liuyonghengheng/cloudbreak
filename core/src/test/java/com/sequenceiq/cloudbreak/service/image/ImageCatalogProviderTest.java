@@ -264,7 +264,7 @@ public class ImageCatalogProviderTest {
         ReflectionTestUtils.setField(underTest, "enabledLinuxTypes", Collections.emptyList());
 
         String errorMessage = getErrorMessage(CB_IMAGE_CATALOG_EMPTY_CLOUDBREAK_VERSIONS_JSON);
-        String expected = "Cloudbreak versions cannot be NULL";
+        String expected = "There should be at least one advertised cdh image in case of missing versions";
         Assert.assertTrue("Check that the Cloudbreak version cannot be empty", errorMessage.startsWith(expected));
     }
 

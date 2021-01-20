@@ -1,10 +1,8 @@
 package com.sequenceiq.cloudbreak.service.image;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -61,10 +59,14 @@ public class ImageCatalogServiceDefaultNotFoundTest {
     @Mock
     private LatestDefaultImageUuidProvider latestDefaultImageUuidProvider;
 
+    @InjectMocks
+    private VersionBasedImageProvider versionBasedImageProvider;
+
     @Before
     public void beforeTest() {
         ReflectionTestUtils.setField(underTest, "cbVersion", "5.0.0");
         ReflectionTestUtils.setField(underTest, "defaultCatalogUrl", "");
+        ReflectionTestUtils.setField(underTest, "versionBasedImageProvider", versionBasedImageProvider);
 
         when(preferencesService.enabledPlatforms()).thenReturn(new HashSet<>(Arrays.asList(PROVIDERS)));
     }
@@ -81,7 +83,6 @@ public class ImageCatalogServiceDefaultNotFoundTest {
         CloudbreakImageCatalogV3 catalog = JsonUtil.readValue(catalogJson, CloudbreakImageCatalogV3.class);
         when(imageCatalogProvider.getImageCatalogV3(DEFAULT_CDH_IMAGE_CATALOG)).thenReturn(catalog);
         when(imageCatalog.getImageCatalogUrl()).thenReturn(DEFAULT_CDH_IMAGE_CATALOG);
-        when(latestDefaultImageUuidProvider.getLatestDefaultImageUuids(any(), any())).thenReturn(Collections.EMPTY_LIST);
 
         ImageFilter imageFilter = new ImageFilter(imageCatalog, Set.of("aws"), "2.6", true, Set.of("centos7", "amazonlinux2"), null);
         underTest.getImagePrewarmedDefaultPreferred(imageFilter, image -> true);

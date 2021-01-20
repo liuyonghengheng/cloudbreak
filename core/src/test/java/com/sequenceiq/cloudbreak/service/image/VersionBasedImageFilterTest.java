@@ -85,7 +85,7 @@ public class VersionBasedImageFilterTest {
     }
 
     private Image createImage(String imageId) {
-        return new Image(null, null, null, null, imageId, null, null, null, null, null, null, null, null, null);
+        return new Image(null, null, null, null, imageId, null, null, null, null, null, null, null, null, null, true);
     }
 
     private Versions createVersions() {

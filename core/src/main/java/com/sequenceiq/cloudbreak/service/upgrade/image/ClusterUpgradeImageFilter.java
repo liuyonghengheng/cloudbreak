@@ -20,6 +20,7 @@ import com.sequenceiq.cloudbreak.cloud.model.catalog.Image;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.ImagePackageVersion;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.Images;
 import com.sequenceiq.cloudbreak.cloud.model.catalog.Versions;
+import com.sequenceiq.cloudbreak.service.image.AdvertisedImageFilter;
 import com.sequenceiq.cloudbreak.service.image.VersionBasedImageFilter;
 
 @Component
@@ -31,6 +32,9 @@ public class ClusterUpgradeImageFilter {
 
     @Inject
     private VersionBasedImageFilter versionBasedImageFilter;
+
+    @Inject
+    private AdvertisedImageFilter advertisedImageFilter;
 
     @Inject
     private EntitlementDrivenPackageLocationFilter packageLocationFilter;
@@ -52,7 +56,8 @@ public class ClusterUpgradeImageFilter {
     }
 
     private ImageFilterResult getImagesForCbVersion(Versions supportedVersions, List<Image> availableImages) {
-        return versionBasedImageFilter.getCdhImagesForCbVersion(supportedVersions, availableImages);
+        return supportedVersions ==  null ? advertisedImageFilter.getAdvertisedImages(availableImages) :
+                versionBasedImageFilter.getCdhImagesForCbVersion(supportedVersions, availableImages);
     }
 
     private ImageFilterResult filterImages(List<Image> availableImages, String cloudPlatform, ImageFilterParams imageFilterParams) {
