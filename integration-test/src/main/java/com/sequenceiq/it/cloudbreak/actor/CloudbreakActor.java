@@ -4,31 +4,22 @@ import java.util.Base64;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.sequenceiq.it.TestParameter;
 import com.sequenceiq.it.cloudbreak.CloudbreakTest;
+import com.sequenceiq.it.cloudbreak.exception.TestFailException;
 
 @Component
-public class CloudbreakActor implements Actor {
+public class CloudbreakActor extends CloudbreakUserCache implements Actor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudbreakActor.class);
 
     @Inject
-    private CloudbreakUserCache cloudbreakUserCache;
-
     private TestParameter testParameter;
-
-    public CloudbreakActor(TestParameter testParameter) {
-        this.testParameter = testParameter;
-    }
-
-    public TestParameter getTestParameter() {
-        return testParameter;
-    }
-
-    public final void setTestParameter(TestParameter testParameter) {
-        this.testParameter = testParameter;
-    }
 
     @Override
     public CloudbreakUser defaultUser() {
@@ -58,6 +49,16 @@ public class CloudbreakActor implements Actor {
 
     @Override
     public CloudbreakUser useRealUmsUser(String key) {
-        return cloudbreakUserCache.getByName(key);
+        LOGGER.info("Getting the requested real UMS user by key: {}", key);
+        checkNonEmpty("integrationtest.user.mow.accountKey", getRealUmsUserAccount());
+        checkNonEmpty("integrationtest.user.mow.environmentKey", getRealUmsUserEnvironment());
+        return getByDisplayName(key);
+    }
+
+    private void checkNonEmpty(String name, String value) {
+        if (StringUtils.hasLength(value)) {
+            throw new TestFailException(String.format("Following variable must be set whether as environment variables or (test) application.yml: %s",
+                    name.replaceAll("\\.", "_").toUpperCase()));
+        }
     }
 }

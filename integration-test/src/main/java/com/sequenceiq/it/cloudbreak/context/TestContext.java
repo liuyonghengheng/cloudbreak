@@ -43,7 +43,6 @@ import com.sequenceiq.it.cloudbreak.UmsClient;
 import com.sequenceiq.it.cloudbreak.action.Action;
 import com.sequenceiq.it.cloudbreak.actor.CloudbreakActor;
 import com.sequenceiq.it.cloudbreak.actor.CloudbreakUser;
-import com.sequenceiq.it.cloudbreak.actor.CloudbreakUserCache;
 import com.sequenceiq.it.cloudbreak.assertion.Assertion;
 import com.sequenceiq.it.cloudbreak.cloud.v4.CloudProviderProxy;
 import com.sequenceiq.it.cloudbreak.cloud.v4.CommonCloudProperties;
@@ -136,15 +135,13 @@ public abstract class TestContext implements ApplicationContextAware {
     private Tracer tracer;
 
     @Inject
-    private CloudbreakUserCache cloudbreakUserCache;
+    private CloudbreakActor cloudbreakActor;
 
     private boolean validated;
 
     private boolean initialized;
 
     private CloudbreakUser actingUser;
-
-    private CloudbreakActor cloudbreakActor;
 
     public Duration getPollingDurationInMills() {
         return Duration.of(pollingInterval, ChronoUnit.MILLIS);
@@ -329,7 +326,7 @@ public abstract class TestContext implements ApplicationContextAware {
     }
 
     private CloudbreakUser createInternalActorForAccountIfNotExists(String tenantName) {
-        CloudbreakUser internalUser = new CloudbreakActor(testParameter).create(tenantName, "__internal__actor__");
+        CloudbreakUser internalUser = cloudbreakActor.create(tenantName, "__internal__actor__");
         if (clients.get(internalUser.getAccessKey()) == null) {
             CloudbreakClient cloudbreakClient = CloudbreakClient.createProxyCloudbreakClient(testParameter, internalUser);
             FreeIpaClient freeIpaClient = FreeIpaClient.createProxyFreeIpaClient(testParameter, internalUser);
@@ -511,7 +508,7 @@ public abstract class TestContext implements ApplicationContextAware {
         if (actingUser == null) {
             LOGGER.info(" Requested acting user is NULL. So we are falling back to Default user with \nACCESS_KEY: {} \nSECRET_KEY: {}",
                     testParameter.get(CloudbreakTest.ACCESS_KEY), testParameter.get(CloudbreakTest.SECRET_KEY));
-            setActingUser(new CloudbreakActor(testParameter).defaultUser());
+            setActingUser(cloudbreakActor.defaultUser());
         } else {
             LOGGER.info(" Found acting user is present with details: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {} \nAdmin: {}" +
                             " \nDescription: {} ", actingUser.getDisplayName(), actingUser.getAccessKey(), actingUser.getSecretKey(), actingUser.getCrn(),
@@ -534,7 +531,7 @@ public abstract class TestContext implements ApplicationContextAware {
                     actingUser.getAdmin(), actingUser.getDescription());
             requestedRealUmsUser = actingUser;
         } else {
-            requestedRealUmsUser = new CloudbreakActor(testParameter).useRealUmsUser(userKey);
+            requestedRealUmsUser = cloudbreakActor.useRealUmsUser(userKey);
             LOGGER.info(" Found real UMS user: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {} \nAdmin: {}" +
                             " \nDescription: {} ", requestedRealUmsUser.getDisplayName(), requestedRealUmsUser.getAccessKey(),
                     requestedRealUmsUser.getSecretKey(), requestedRealUmsUser.getCrn(), requestedRealUmsUser.getAdmin(),
@@ -738,8 +735,8 @@ public abstract class TestContext implements ApplicationContextAware {
 
     public <U extends MicroserviceClient> U getAdminMicroserviceClient(Class<? extends CloudbreakTestDto> testDtoClass, String accountId) {
         String accessKey;
-        if (cloudbreakUserCache.isInitialized()) {
-            accessKey = cloudbreakUserCache.getAdminAccessKeyByAccountId(accountId);
+        if (Optional.of(cloudbreakActor.isInitialized()).orElse(false)) {
+            accessKey = cloudbreakActor.getAdminAccessKeyByAccountId(accountId);
         } else {
             CloudbreakUser internalActorForAccount = createInternalActorForAccountIfNotExists(accountId);
             accessKey = internalActorForAccount.getAccessKey();

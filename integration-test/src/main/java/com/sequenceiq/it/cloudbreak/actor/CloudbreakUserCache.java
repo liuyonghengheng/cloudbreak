@@ -11,17 +11,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.StringUtils;
 
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.util.FileReaderUtils;
 import com.sequenceiq.it.cloudbreak.exception.TestFailException;
-import com.sequenceiq.it.config.IntegrationTestConfiguration;
 
-@ContextConfiguration(classes = IntegrationTestConfiguration.class, initializers = ConfigFileApplicationContextInitializer.class)
 @Component
 public class CloudbreakUserCache {
 
@@ -35,18 +30,19 @@ public class CloudbreakUserCache {
     @Value("${integrationtest.user.mow.environmentKey:dev}")
     private String realUmsUserEnvironment;
 
-    public CloudbreakUser getByName(String name) {
-        return getByName(name, getRealUmsUserEnvironment(), getRealUmsUserAccount());
+    public CloudbreakUser getByDisplayName(String name) {
+        return getByDisplayName(name, getRealUmsUserEnvironment(), getRealUmsUserAccount());
     }
 
-    public CloudbreakUser getByName(String name, String environmentKey, String accountKey) {
+    public CloudbreakUser getByDisplayName(String name, String environmentKey, String accountKey) {
         if (usersByAccount == null) {
             initUsers(environmentKey, accountKey);
         }
         CloudbreakUser user = usersByAccount.values().stream().flatMap(Collection::stream)
-                .filter(u -> u.getDisplayName().equals(name)).findFirst().get();
-        LOGGER.info(" Acting real UMS user \nname: {} \ncrn: {} \naccessKey: {} \nsecretKey: {} \nadmin: {} ", user.getDisplayName(), user.getCrn(),
-                user.getAccessKey(), user.getSecretKey(), user.getAdmin());
+                .filter(u -> u.getDisplayName().equals(name)).findFirst()
+                .orElseThrow(() -> new TestFailException(String.format("There is no real ums user with name %s in account %s", name, accountKey)));
+        LOGGER.info(" Real UMS user has been found in cache:: \nname: {} \ncrn: {} \naccessKey: {} \nsecretKey: {} \nadmin: {} ", user.getDisplayName(),
+                user.getCrn(), user.getAccessKey(), user.getSecretKey(), user.getAdmin());
         return user;
     }
 
@@ -68,7 +64,7 @@ public class CloudbreakUserCache {
 
     public void initUsers(String environmentKey, String accountKey) {
         String userConfigPath = "ums-users/api-credentials.json";
-        LOGGER.info("Real UMS environment: {} and account: {}", environmentKey, accountKey);
+        LOGGER.info("Real UMS environmentKey: {} and accountKey: {} at [{}] path", environmentKey, accountKey, userConfigPath);
         try {
             String accountId = null;
             List<CloudbreakUser> cloudbreakUsers = new ArrayList<CloudbreakUser>();
@@ -105,13 +101,6 @@ public class CloudbreakUserCache {
     }
 
     public boolean isInitialized() {
-        return usersByAccount != null;
-    }
-
-    private void checkNonEmpty(String name, String value) {
-        if (StringUtils.hasLength(value)) {
-            throw new NullPointerException(String.format("Following variable must be set whether as environment variables or (test) application.yml: %s",
-                    name.replaceAll("\\.", "_").toUpperCase()));
-        }
+        return usersByAccount != null && !usersByAccount.isEmpty();
     }
 }
