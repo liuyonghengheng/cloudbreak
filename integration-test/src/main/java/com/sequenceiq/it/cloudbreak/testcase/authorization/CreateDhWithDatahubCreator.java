@@ -55,6 +55,9 @@ public class CreateDhWithDatahubCreator extends AbstractIntegrationTest {
     @Inject
     private CloudbreakActor cloudbreakActor;
 
+    @Inject
+    private AuthorizationTestUtil authorizationTestUtil;
+
     @Override
     protected void setupTest(TestContext testContext) {
 
@@ -156,11 +159,11 @@ public class CreateDhWithDatahubCreator extends AbstractIntegrationTest {
     private void testCheckRightUtil(TestContext testContext, String dhCrn) {
         Map<String, List<RightV4>> resourceRightsToCheck = Maps.newHashMap();
         resourceRightsToCheck.put(dhCrn, Lists.newArrayList(RightV4.DH_DELETE, RightV4.DH_START, RightV4.DH_STOP));
-        AuthorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ENV_CREATOR_A, new CheckResourceRightTrueAssertion(),
+        authorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ENV_CREATOR_A, new CheckResourceRightTrueAssertion(),
                 resourceRightsToCheck, utilTestClient);
-        AuthorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ENV_CREATOR_B, new CheckResourceRightTrueAssertion(),
+        authorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ENV_CREATOR_B, new CheckResourceRightTrueAssertion(),
                 resourceRightsToCheck, utilTestClient);
-        AuthorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ZERO_RIGHTS, new CheckResourceRightFalseAssertion(),
+        authorizationTestUtil.testCheckResourceRightUtil(testContext, AuthUserKeys.ZERO_RIGHTS, new CheckResourceRightFalseAssertion(),
                 resourceRightsToCheck, utilTestClient);
     }
 }
