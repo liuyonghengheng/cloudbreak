@@ -37,8 +37,8 @@ public class RunningParameter {
     private CloudbreakActor cloudbreakActor;
 
     public CloudbreakUser getWho() {
-        if (Optional.of(doAsAdmin).orElse(false)) {
-            if (Optional.of(cloudbreakActor.isInitialized()).orElse(false)) {
+        if (Optional.ofNullable(doAsAdmin).orElse(false)) {
+            if (Optional.ofNullable(cloudbreakActor.isInitialized()).orElse(false)) {
                 return cloudbreakActor.useRealUmsUser(AuthUserKeys.ACCOUNT_ADMIN);
             }
         }

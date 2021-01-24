@@ -735,7 +735,7 @@ public abstract class TestContext implements ApplicationContextAware {
 
     public <U extends MicroserviceClient> U getAdminMicroserviceClient(Class<? extends CloudbreakTestDto> testDtoClass, String accountId) {
         String accessKey;
-        if (Optional.of(cloudbreakActor.isInitialized()).orElse(false)) {
+        if (Optional.ofNullable(cloudbreakActor.isInitialized()).orElse(false)) {
             accessKey = cloudbreakActor.getAdminAccessKeyByAccountId(accountId);
         } else {
             CloudbreakUser internalActorForAccount = createInternalActorForAccountIfNotExists(accountId);

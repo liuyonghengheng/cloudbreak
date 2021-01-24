@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,8 @@ public class CloudbreakUserCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudbreakUserCache.class);
 
     private Map<String, List<CloudbreakUser>> usersByAccount;
+
+    private boolean initialized;
 
     @Value("${integrationtest.user.mow.accountKey:default}")
     private String realUmsUserAccount;
@@ -85,8 +86,9 @@ public class CloudbreakUserCache {
                 }
             }
             setUsersByAccount(Map.of(accountId, cloudbreakUsers));
-        } catch (JSONException e) {
-            throw new RuntimeException(String.format("Can't read file: %s It's possible you did run make fetch-secrets", userConfigPath));
+            initialized = true;
+        } catch (Exception e) {
+            throw new TestFailException(e.getMessage(), e.getCause());
         }
         usersByAccount.values().stream().flatMap(Collection::stream).forEach(user -> {
             LOGGER.info(" Initialized real UMS user \nname: {} \ncrn: {} \naccessKey: {} \nsecretKey: {} \nadmin: {} ", user.getDisplayName(), user.getCrn(),
@@ -97,10 +99,10 @@ public class CloudbreakUserCache {
 
     public String getAdminAccessKeyByAccountId(String accountId) {
         return usersByAccount.get(accountId).stream().filter(CloudbreakUser::getAdmin).findFirst()
-                .orElseThrow(() -> new TestFailException(String.format("There is no account admin test user for account %s", accountId))).getAccessKey();
+                .orElseThrow(() -> new TestFailException(String.format("There is no account admin test user for UMS account %s", accountId))).getAccessKey();
     }
 
     public boolean isInitialized() {
-        return usersByAccount != null && !usersByAccount.isEmpty();
+        return initialized;
     }
 }

@@ -50,8 +50,6 @@ public class CloudbreakActor extends CloudbreakUserCache implements Actor {
     @Override
     public CloudbreakUser useRealUmsUser(String key) {
         LOGGER.info("Getting the requested real UMS user by key: {}", key);
-        checkNonEmpty("integrationtest.user.mow.accountKey", getRealUmsUserAccount());
-        checkNonEmpty("integrationtest.user.mow.environmentKey", getRealUmsUserEnvironment());
         return getByDisplayName(key);
     }
 

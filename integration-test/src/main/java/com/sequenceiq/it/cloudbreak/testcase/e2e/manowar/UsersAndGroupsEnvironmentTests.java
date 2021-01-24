@@ -8,18 +8,23 @@ import javax.inject.Inject;
 import org.testng.annotations.Test;
 
 import com.sequenceiq.freeipa.api.v1.operation.model.OperationState;
+import com.sequenceiq.it.cloudbreak.client.DistroXTestClient;
 import com.sequenceiq.it.cloudbreak.client.EnvironmentTestClient;
 import com.sequenceiq.it.cloudbreak.client.FreeIpaTestClient;
+import com.sequenceiq.it.cloudbreak.client.SdxTestClient;
 import com.sequenceiq.it.cloudbreak.context.Description;
 import com.sequenceiq.it.cloudbreak.context.TestContext;
+import com.sequenceiq.it.cloudbreak.dto.distrox.DistroXTestDto;
 import com.sequenceiq.it.cloudbreak.dto.environment.EnvironmentTestDto;
 import com.sequenceiq.it.cloudbreak.dto.freeipa.FreeIpaTestDto;
 import com.sequenceiq.it.cloudbreak.dto.freeipa.FreeIpaUserSyncTestDto;
+import com.sequenceiq.it.cloudbreak.dto.sdx.SdxTestDto;
 import com.sequenceiq.it.cloudbreak.dto.telemetry.TelemetryTestDto;
 import com.sequenceiq.it.cloudbreak.dto.ums.UmsTestDto;
 import com.sequenceiq.it.cloudbreak.testcase.authorization.AuthUserKeys;
 import com.sequenceiq.it.cloudbreak.testcase.e2e.AbstractE2ETest;
 import com.sequenceiq.it.cloudbreak.util.spot.UseSpotInstances;
+import com.sequenceiq.sdx.api.model.SdxClusterStatusResponse;
 
 public class UsersAndGroupsEnvironmentTests extends AbstractE2ETest {
 
@@ -29,17 +34,23 @@ public class UsersAndGroupsEnvironmentTests extends AbstractE2ETest {
     @Inject
     private FreeIpaTestClient freeIpaTestClient;
 
+    @Inject
+    private SdxTestClient sdxTestClient;
+
+    @Inject
+    private DistroXTestClient distroXTestClient;
+
     @Override
     protected void setupTest(TestContext testContext) {
         testContext.getCloudProvider().getCloudFunctionality().cloudStorageInitialize();
-//        useRealUmsUser(testContext, AuthUserKeys.ACCOUNT_ADMIN);
-        createDefaultUser(testContext);
+        useRealUmsUser(testContext, AuthUserKeys.ACCOUNT_ADMIN);
+//        createDefaultUser(testContext);
         initializeDefaultBlueprints(testContext);
         createDefaultCredential(testContext);
         createEnvironmentWithNetwork(testContext);
     }
 
-    @Test(dataProvider = TEST_CONTEXT)
+    @Test(dataProvider = TEST_CONTEXT, enabled = false)
     @UseSpotInstances
     @Description(
             given = "there is a running environment",
@@ -93,6 +104,31 @@ public class UsersAndGroupsEnvironmentTests extends AbstractE2ETest {
                 .given(FreeIpaUserSyncTestDto.class)
                 .when(freeIpaTestClient.sync())
                 .await(OperationState.COMPLETED)
+                .validate();
+    }
+
+    @Test(dataProvider = TEST_CONTEXT)
+    @UseSpotInstances
+    @Description(
+            given = "there is a running environment",
+            when = "add freeIpa to the running environment then syncornize all users",
+            then = "freeIpa should be created then syncronized successfully at environment")
+    public void testCreateFullEnvironment(TestContext testContext) {
+        testContext
+                .given("telemetry", TelemetryTestDto.class)
+                .withLogging()
+                .withReportClusterLogs()
+                .given(FreeIpaTestDto.class)
+                .withTelemetry("telemetry")
+                .when(freeIpaTestClient.create())
+                .await(AVAILABLE)
+                .given(SdxTestDto.class)
+                .withCloudStorage()
+                .when(sdxTestClient.create())
+                .await(SdxClusterStatusResponse.RUNNING)
+                .given(DistroXTestDto.class)
+                .when(distroXTestClient.create())
+                .await(STACK_AVAILABLE)
                 .validate();
     }
 }
