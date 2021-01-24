@@ -218,7 +218,7 @@ public abstract class TestContext implements ApplicationContextAware {
             return entity;
         }
 
-        CloudbreakUser who = getActingUser();
+        CloudbreakUser who = setActingUser(runningParameter);
 
         LOGGER.info("when {} action on {} by {}, name: {}", key, entity, who, entity.getName());
         Log.when(LOGGER, action.getClass().getSimpleName() + " action on " + entity + " by " + who);
@@ -277,7 +277,7 @@ public abstract class TestContext implements ApplicationContextAware {
             return entity;
         }
 
-        CloudbreakUser who = getActingUser();
+        CloudbreakUser who = setActingUser(runningParameter);
 
         Log.then(LOGGER, assertion.getClass().getSimpleName() + " assertion on " + entity + " by " + who);
         try {
@@ -462,17 +462,50 @@ public abstract class TestContext implements ApplicationContextAware {
         return Optional.empty();
     }
 
-    protected void setActingUser(CloudbreakUser actingUser) {
+    /**
+     * Update the acting user with the provided one.
+     *
+     * @param actingUser   Provided acting user (with CloudbreakUser)
+     */
+    public void setActingUser(CloudbreakUser actingUser) {
+        LOGGER.info(" Acting user has been set: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {} \nAdmin: {} \nDescription: {} ",
+                actingUser.getDisplayName(), actingUser.getAccessKey(), actingUser.getSecretKey(), actingUser.getCrn(), actingUser.getAdmin(),
+                actingUser.getDescription());
         this.actingUser = actingUser;
     }
 
     /**
-     * Request a Cloudbreak user as actor.
-     * If the actor has already been initialized, it is returning the found Cloudbreak user.
-     * If the actor is not present (by strating up the application), it is returning the default user. Here the default user details must be set
-     * whether as environment variables or at (test) application.yml.
+     * If requested user is present, sets it as acting user then returns with it, otherwise returns the actual acting user.
      *
-     * @return  Requested CloudbreakUser
+     * @param runningParameter   Provided running parameter for acting user. Sample: RunningParameter.who(cloudbreakActor
+     *                           .getRealUmsUser(AuthUserKeys.ENV_CREATOR_A))
+     * @return                   Return with the acting user
+     */
+    public CloudbreakUser setActingUser(RunningParameter runningParameter) {
+        CloudbreakUser cloudbreakUser = runningParameter.getWho();
+        if (cloudbreakUser == null) {
+            cloudbreakUser = getActingUser();
+            LOGGER.info(" Requested user for acting is NULL. So we are falling back to actual acting user: \nDisplay Name: {} \nAccess Key: {}" +
+                            " \nSecret Key: {} \nCRN: {} \nAdmin: {} \nDescription: {} ", cloudbreakUser.getDisplayName(), cloudbreakUser.getAccessKey(),
+                    cloudbreakUser.getSecretKey(), cloudbreakUser.getCrn(), cloudbreakUser.getAdmin(), cloudbreakUser.getDescription());
+        } else {
+            if (!actingUser.getDisplayName().equalsIgnoreCase(cloudbreakUser.getDisplayName())) {
+                setActingUser(cloudbreakUser);
+            } else {
+                LOGGER.info(" Requested user for acting is the same as actual acting user: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {}" +
+                                " \nAdmin: {} \nDescription: {} ", actingUser.getDisplayName(), actingUser.getAccessKey(), actingUser.getSecretKey(),
+                        actingUser.getCrn(), actingUser.getAdmin(), actingUser.getDescription());
+            }
+        }
+        return cloudbreakUser;
+    }
+
+    /**
+     * If acting user is present, returns the user, otherwise returns the Default user (defined by as environment variables -
+     * INTEGRATIONTEST_USER_ACCESSKEY and INTEGRATIONTEST_USER_SECRETKEYOR - at application.yml - integrationtest.user.accesskey
+     * and integrationtest.user.secretkey).
+     *
+     * @return                   Return with the acting user
      */
     public CloudbreakUser getActingUser() {
         if (actingUser == null) {
@@ -490,11 +523,24 @@ public abstract class TestContext implements ApplicationContextAware {
     /**
      * Request a real UMS user by AuthUserKeys from the fetched ums-users/api-credentials.json
      *
-     * @param userKey   Sample key: AuthUserKeys.ACCOUNT_ADMIN
-     * @return          Requested real UMS CloudbreakUser
+     * @param userKey            Sample key: AuthUserKeys.ACCOUNT_ADMIN
+     * @return                   Requested real UMS user
      */
     public CloudbreakUser getRealUmsUserByKey(String userKey) {
-        return cloudbreakActor.useRealUmsUser(userKey);
+        CloudbreakUser requestedRealUmsUser;
+        if (actingUser.getDisplayName().equalsIgnoreCase(userKey)) {
+            LOGGER.info(" Requested real UMS user is the same as acting user: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {} \nAdmin: {}" +
+                            " \nDescription: {} ", actingUser.getDisplayName(), actingUser.getAccessKey(), actingUser.getSecretKey(), actingUser.getCrn(),
+                    actingUser.getAdmin(), actingUser.getDescription());
+            requestedRealUmsUser = actingUser;
+        } else {
+            requestedRealUmsUser = new CloudbreakActor(testParameter).useRealUmsUser(userKey);
+            LOGGER.info(" Found real UMS user: \nDisplay Name: {} \nAccess Key: {} \nSecret Key: {} \nCRN: {} \nAdmin: {}" +
+                            " \nDescription: {} ", requestedRealUmsUser.getDisplayName(), requestedRealUmsUser.getAccessKey(),
+                    requestedRealUmsUser.getSecretKey(), requestedRealUmsUser.getCrn(), requestedRealUmsUser.getAdmin(),
+                    requestedRealUmsUser.getDescription());
+        }
+        return requestedRealUmsUser;
     }
 
     public <O extends CloudbreakTestDto> O init(Class<O> clss) {
@@ -950,8 +996,16 @@ public abstract class TestContext implements ApplicationContextAware {
             throw new IllegalStateException(
                     "Test context should be validated! Maybe you forgot to call .validate() at the end of the test? See other tests as an example.");
         }
+
+        RunningParameter runningParameter = new RunningParameter().switchToAdmin();
+        CloudbreakUser actingUser = runningParameter.getWho();
+        LOGGER.info(" Cleanup is now in progress with user: \nDisplay name: {} \nCrn: {} \nAdmin: {} ", actingUser.getDisplayName(), actingUser.getCrn(),
+                actingUser.getAdmin());
+
         checkShutdown();
+
         handleExceptionsDuringTest(TestErrorLog.IGNORE);
+
         if (!cleanUpOnFailure && !getExceptionMap().isEmpty()) {
             LOGGER.info("Cleanup skipped beacuse cleanupOnFail is false");
             return;

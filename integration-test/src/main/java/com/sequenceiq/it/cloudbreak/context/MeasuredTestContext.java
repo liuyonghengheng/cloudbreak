@@ -118,6 +118,11 @@ public class MeasuredTestContext extends MockedTestContext {
     }
 
     @Override
+    public CloudbreakUser setActingUser(RunningParameter runningParameter) {
+        return wrappedTestContext.setActingUser(runningParameter);
+    }
+
+    @Override
     public CloudbreakUser getActingUser() {
         return wrappedTestContext.getActingUser();
     }

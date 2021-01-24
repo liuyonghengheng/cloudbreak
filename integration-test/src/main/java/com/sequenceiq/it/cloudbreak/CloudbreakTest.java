@@ -26,14 +26,6 @@ public class CloudbreakTest extends GherkinTest {
 
     public static final String INTEGRATIONTEST_CLOUDBREAK_SERVER = "INTEGRATIONTEST_CLOUDBREAK_SERVER";
 
-    public static final String INTEGRATIONTEST_USER_ACCESSKEY = "INTEGRATIONTEST_USER_ACCESSKEY";
-
-    public static final String INTEGRATIONTEST_USER_SECRETKEY = "INTEGRATIONTEST_USER_SECRETKEY";
-
-    public static final String INTEGRATIONTEST_USER_CRN = "INTEGRATIONTEST_USER_CRN";
-
-    public static final String INTEGRATIONTEST_USER_NAME = "INTEGRATIONTEST_USER_NAME";
-
     public static final String CLOUDBREAK_SERVER_ROOT = "CLOUDBREAK_SERVER_ROOT";
 
     public static final String IMAGE_CATALOG_MOCK_SERVER_ROOT = "IMAGE_CATALOG_MOCK_SERVER_ROOT";
@@ -130,10 +122,7 @@ public class CloudbreakTest extends GherkinTest {
         testParameter.put(USER_CRN, userCrn);
         testParameter.put(USER_NAME, userName);
 
-        LOGGER.info(" Following user details have been set whether as environment variables or at (test) application.yml::" +
-                        " \nINTEGRATIONTEST_USER_ACCESSKEY: {} \nINTEGRATIONTEST_USER_SECRETKEY: {} \nINTEGRATIONTEST_USER_CRN: {}" +
-                        " \nINTEGRATIONTEST_USER_NAME: {} ", accesskey, secretkey, userCrn, userName);
-        LOGGER.info(" Following user details have been add to test parameters:: \nACCESS_KEY: {} \nSECRET_KEY: {} \nUSER_CRN: {} \nUSER_NAME: {} ",
+        LOGGER.info(" Default user details in test parameters:: \nACCESS_KEY: {} \nSECRET_KEY: {} \nUSER_CRN: {} \nUSER_NAME: {} ",
                 testParameter.get(ACCESS_KEY), testParameter.get(SECRET_KEY), testParameter.get(USER_CRN), testParameter.get(USER_NAME));
 
         try {
