@@ -23,7 +23,7 @@ public class CloudbreakUserCache {
 
     private Map<String, List<CloudbreakUser>> usersByAccount;
 
-    private boolean initialized;
+    private Map<String, String> initializedKeys;
 
     @Value("${integrationtest.user.mow.accountKey:default}")
     private String realUmsUserAccount;
@@ -36,12 +36,12 @@ public class CloudbreakUserCache {
     }
 
     public CloudbreakUser getByDisplayName(String name, String environmentKey, String accountKey) {
-        if (usersByAccount == null) {
+        if (usersByAccount == null || !initializedKeys.containsKey(environmentKey) || !initializedKeys.containsValue(accountKey)) {
             initUsers(environmentKey, accountKey);
         }
         CloudbreakUser user = usersByAccount.values().stream().flatMap(Collection::stream)
                 .filter(u -> u.getDisplayName().equals(name)).findFirst()
-                .orElseThrow(() -> new TestFailException(String.format("There is no real ums user with name %s in account %s", name, accountKey)));
+                .orElseThrow(() -> new TestFailException(String.format("There is no real ums user with name: %s in account: %s", name, accountKey)));
         LOGGER.info(" Real UMS user has been found in cache:: \nname: {} \ncrn: {} \naccessKey: {} \nsecretKey: {} \nadmin: {} ", user.getDisplayName(),
                 user.getCrn(), user.getAccessKey(), user.getSecretKey(), user.getAdmin());
         return user;
@@ -71,6 +71,10 @@ public class CloudbreakUserCache {
         this.realUmsUserEnvironment = realUmsUserEnvironmentKey;
     }
 
+    public void setInitializedKeys(Map<String, String> keys) {
+        this.initializedKeys = keys;
+    }
+
     public void initUsers(String environmentKey, String accountKey) {
         String userConfigPath = "ums-users/api-credentials.json";
         LOGGER.info("Real UMS environmentKey: {} and accountKey: {} at [{}] path", environmentKey, accountKey, userConfigPath);
@@ -94,7 +98,7 @@ public class CloudbreakUserCache {
                 }
             }
             setUsersByAccount(Map.of(accountId, cloudbreakUsers));
-            initialized = true;
+            setInitializedKeys(Map.of(environmentKey, accountKey));
         } catch (Exception e) {
             throw new TestFailException(e.getMessage(), e.getCause());
         }
@@ -111,6 +115,6 @@ public class CloudbreakUserCache {
     }
 
     public boolean isInitialized() {
-        return initialized;
+        return usersByAccount != null && !usersByAccount.isEmpty();
     }
 }

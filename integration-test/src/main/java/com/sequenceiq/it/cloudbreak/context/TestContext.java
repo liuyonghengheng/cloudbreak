@@ -994,11 +994,6 @@ public abstract class TestContext implements ApplicationContextAware {
                     "Test context should be validated! Maybe you forgot to call .validate() at the end of the test? See other tests as an example.");
         }
 
-        RunningParameter runningParameter = new RunningParameter().switchToAdmin();
-        CloudbreakUser actingUser = runningParameter.getWho();
-        LOGGER.info(" Cleanup is now in progress with user: \nDisplay name: {} \nCrn: {} \nAdmin: {} ", actingUser.getDisplayName(), actingUser.getCrn(),
-                actingUser.getAdmin());
-
         checkShutdown();
 
         handleExceptionsDuringTest(TestErrorLog.IGNORE);
