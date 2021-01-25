@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -29,7 +30,7 @@ import org.springframework.security.access.AccessDeniedException;
 import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
-import com.sequenceiq.authorization.resource.ListResourceProvider;
+import com.sequenceiq.authorization.resource.AuthorizationFiltering;
 import com.sequenceiq.authorization.service.UmsRightProvider;
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.altus.CrnResourceDescriptor;
@@ -58,10 +59,10 @@ public class ListAuthorizationServiceTest {
     private static final String LEGACY_RIGHT = "LEGACY_RIGHT";
 
     @Spy
-    private Map<Class<ListResourceProvider<?>>, ListResourceProvider<?>> listResourceProviders = new HashMap<>();
+    private Map<Class<AuthorizationFiltering<?>>, AuthorizationFiltering<?>> listResourceProviders = new HashMap<>();
 
     @Mock
-    private ListResourceProvider<?> listResourceProvider;
+    private AuthorizationFiltering<?> authorizationFiltering;
 
     @Mock
     private EntitlementService entitlementService;
@@ -90,11 +91,11 @@ public class ListAuthorizationServiceTest {
     //CHECKSTYLE:OFF
     public void setUp() throws Throwable {
         //CHECKSTYLE:ON
-        listResourceProviders.put((Class<ListResourceProvider<?>>) listResourceProvider.getClass(), listResourceProvider);
-        checkList = annotation((Class<ListResourceProvider<?>>) listResourceProvider.getClass(), ACTION);
-        lenient().doAnswer(invocation -> invocation.getArgument(0)).when(listResourceProvider).getResult(anyList());
-        lenient().doAnswer(i -> List.of(1000L)).when(listResourceProvider).getLegacyResult();
-        lenient().doAnswer(i -> underTest.getResultAs(List.class)).when(proceedingJoinPoint).proceed();
+        listResourceProviders.put((Class<AuthorizationFiltering<?>>) authorizationFiltering.getClass(), authorizationFiltering);
+        checkList = annotation((Class<AuthorizationFiltering<?>>) authorizationFiltering.getClass(), ACTION);
+        lenient().doAnswer(invocation -> invocation.getArgument(0)).when(authorizationFiltering).filterByIds(anyList(), anyMap());
+        lenient().doAnswer(i -> List.of(1000L)).when(authorizationFiltering).getAll(anyMap());
+        lenient().doAnswer(i -> underTest.getResultAs()).when(proceedingJoinPoint).proceed();
         lenient().when(listParamsUtil.getFilterParams(any(), any())).thenReturn(Map.of());
     }
 
@@ -126,7 +127,7 @@ public class ListAuthorizationServiceTest {
                         () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID));
 
         assertEquals("You have no right to perform LEGACY_RIGHT in account ACCOUNT_ID.", exception.getMessage());
-        verifyNoInteractions(listResourceProvider, proceedingJoinPoint);
+        verifyNoInteractions(authorizationFiltering, proceedingJoinPoint);
     }
 
     @Test
@@ -155,7 +156,7 @@ public class ListAuthorizationServiceTest {
                         () -> underTest.filterList(checkList, USER_CRN, proceedingJoinPoint, methodSignature, REQUEST_ID));
 
         assertEquals("You have no right to perform datahub/describeDatahub in account ACCOUNT_ID.", exception.getMessage());
-        verifyNoInteractions(listResourceProvider, proceedingJoinPoint);
+        verifyNoInteractions(authorizationFiltering, proceedingJoinPoint);
     }
 
     @Test
@@ -515,21 +516,21 @@ public class ListAuthorizationServiceTest {
     }
 
     private void givenResources(AuthorizationResource... authorizationResources) {
-        when(listResourceProvider.getAuthorizationResources(Map.of())).thenReturn(List.of(authorizationResources));
+        when(authorizationFiltering.getAllResources(Map.of())).thenReturn(List.of(authorizationResources));
     }
 
     //CHECKSTYLE:OFF
     private void verifyHasRightOnAndProceedWith(List<Long> expectedIds, Object result) throws Throwable {
         //CHECKSTYLE:ON
         assertEquals(expectedIds, result);
-        verify(listResourceProvider).getResult(expectedIds);
+        verify(authorizationFiltering).filterByIds(expectedIds, Map.of());
         verify(proceedingJoinPoint).proceed();
     }
 
     //CHECKSTYLE:OFF
     private void verifyHasRightOnNotFilteredResult(Object result) throws Throwable {
         //CHECKSTYLE:ON
-        verify(listResourceProvider).getLegacyResult();
+        verify(authorizationFiltering).getAll(Map.of());
         verify(proceedingJoinPoint).proceed();
         assertEquals(List.of(1000L), result);
     }
@@ -550,7 +551,7 @@ public class ListAuthorizationServiceTest {
                 .toString();
     }
 
-    private FilterListBasedOnPermissions annotation(Class<ListResourceProvider<?>> providerClass, AuthorizationResourceAction action) {
+    private FilterListBasedOnPermissions annotation(Class<AuthorizationFiltering<?>> providerClass, AuthorizationResourceAction action) {
         return new FilterListBasedOnPermissions() {
 
             @Override
@@ -564,7 +565,7 @@ public class ListAuthorizationServiceTest {
             }
 
             @Override
-            public Class<? extends ListResourceProvider<?>> provider() {
+            public Class<? extends AuthorizationFiltering<?>> filter() {
                 return providerClass;
             }
         };

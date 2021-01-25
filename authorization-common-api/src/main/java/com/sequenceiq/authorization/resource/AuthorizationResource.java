@@ -16,7 +16,7 @@ public class AuthorizationResource {
             String resourceCrn) {
         this.id = id;
         this.resourceCrn = Objects.requireNonNull(resourceCrn);
-        this.parentResourceCrn = Optional.empty();
+        parentResourceCrn = Optional.empty();
     }
 
     public AuthorizationResource(
@@ -25,7 +25,7 @@ public class AuthorizationResource {
             String parentResourceCrn) {
         this.id = id;
         this.resourceCrn = Objects.requireNonNull(resourceCrn);
-        this.parentResourceCrn = Optional.of(Objects.requireNonNull(parentResourceCrn));
+        this.parentResourceCrn = Optional.ofNullable(parentResourceCrn);
     }
 
     public AuthorizationResource(

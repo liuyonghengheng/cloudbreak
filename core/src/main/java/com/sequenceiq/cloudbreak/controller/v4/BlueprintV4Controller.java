@@ -46,6 +46,7 @@ public class BlueprintV4Controller extends NotificationController implements Blu
     @Inject
     private ConverterUtil converterUtil;
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public BlueprintV4ViewResponses list(Long workspaceId, Boolean withSdx) {

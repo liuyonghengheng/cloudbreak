@@ -13,11 +13,13 @@ import org.springframework.stereotype.Controller;
 import com.sequenceiq.authorization.annotation.CheckPermissionByAccount;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceCrn;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceName;
-import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
+import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
+import com.sequenceiq.authorization.annotation.FilterParam;
 import com.sequenceiq.authorization.annotation.InternalOnly;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
 import com.sequenceiq.authorization.annotation.ResourceName;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
+import com.sequenceiq.authorization.service.list.ListAuthorizationService;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.CertificatesRotationV4Request;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.response.StackV4Response;
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
@@ -27,6 +29,7 @@ import com.sequenceiq.cloudbreak.logger.MDCBuilder;
 import com.sequenceiq.cloudbreak.validation.ValidCrn;
 import com.sequenceiq.cloudbreak.validation.ValidStackNameFormat;
 import com.sequenceiq.cloudbreak.validation.ValidStackNameLength;
+import com.sequenceiq.datalake.authorization.DatalakeFiltering;
 import com.sequenceiq.datalake.cm.RangerCloudIdentityService;
 import com.sequenceiq.datalake.configuration.CDPConfigService;
 import com.sequenceiq.datalake.entity.SdxCluster;
@@ -89,6 +92,9 @@ public class SdxController implements SdxEndpoint {
     @Inject
     private CertRotationService certRotationService;
 
+    @Inject
+    private ListAuthorizationService listAuthorizationService;
+
     @Override
     @CheckPermissionByAccount(action = AuthorizationResourceAction.CREATE_DATALAKE)
     public SdxClusterResponse create(@ValidStackNameFormat @ValidStackNameLength String name,
@@ -132,20 +138,20 @@ public class SdxController implements SdxEndpoint {
     }
 
     @Override
-    @DisableCheckPermissions
-    public List<SdxClusterResponse> list(String envName) {
-        String userCrn = ThreadBasedUserCrnProvider.getUserCrn();
-        List<SdxCluster> sdxClusters = sdxService.listSdx(userCrn, envName);
+    @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_DATALAKE, filter = DatalakeFiltering.class)
+    public List<SdxClusterResponse> list(@FilterParam(DatalakeFiltering.ENV_NAME) String envName) {
+        List<SdxCluster> sdxClusters = listAuthorizationService.getResultAs();
         return sdxClusters.stream()
                 .map(sdx -> sdxClusterConverter.sdxClusterToResponse(sdx))
                 .collect(Collectors.toList());
     }
 
+    // TODO(authz): list filtering
     @Override
-    @DisableCheckPermissions
-    public List<SdxClusterResponse> getByEnvCrn(@ValidCrn(resource = CrnResourceDescriptor.ENVIRONMENT) String envCrn) {
-        String userCrn = ThreadBasedUserCrnProvider.getUserCrn();
-        List<SdxCluster> sdxClusters = sdxService.listSdxByEnvCrn(userCrn, envCrn);
+    @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_DATALAKE, filter = DatalakeFiltering.class)
+    public List<SdxClusterResponse> getByEnvCrn(@ValidCrn(resource = CrnResourceDescriptor.ENVIRONMENT) @FilterParam(DatalakeFiltering.ENV_CRN)
+            String envCrn) {
+        List<SdxCluster> sdxClusters = listAuthorizationService.getResultAs();
         return sdxClusters.stream()
                 .map(sdx -> sdxClusterConverter.sdxClusterToResponse(sdx))
                 .collect(Collectors.toList());
@@ -268,7 +274,7 @@ public class SdxController implements SdxEndpoint {
     @Override
     @CheckPermissionByResourceName(action = AuthorizationResourceAction.RESTORE_DATALAKE)
     public SdxDatabaseRestoreResponse restoreDatabaseByName(@ResourceName String name, String backupId,
-                                                            String restoreId, String backupLocation) {
+            String restoreId, String backupLocation) {
         SdxCluster sdxCluster = getSdxClusterByName(name);
         return sdxDatabaseDrService.triggerDatabaseRestore(sdxCluster, backupId, restoreId, backupLocation);
     }
@@ -284,7 +290,8 @@ public class SdxController implements SdxEndpoint {
     @CheckPermissionByResourceName(action = AuthorizationResourceAction.RESTORE_DATALAKE)
     public SdxDatabaseRestoreStatusResponse getRestoreDatabaseStatusByName(@ResourceName String name, String operationId) {
         SdxCluster sdxCluster = getSdxClusterByName(name);
-        return sdxDatabaseDrService.getDatabaseRestoreStatus(sdxCluster, operationId);    }
+        return sdxDatabaseDrService.getDatabaseRestoreStatus(sdxCluster, operationId);
+    }
 
     @Override
     @InternalOnly

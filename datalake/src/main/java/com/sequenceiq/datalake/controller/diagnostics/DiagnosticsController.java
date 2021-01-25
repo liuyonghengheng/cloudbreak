@@ -44,6 +44,7 @@ public class DiagnosticsController implements DiagnosticsEndpoint {
         return diagnosticsService.collectCmDiagnostics(request);
     }
 
+    // TODO(authz): Why is this not authorized?
     @Override
     @DisableCheckPermissions
     public List<String> getCmRoles(String stackCrn) {

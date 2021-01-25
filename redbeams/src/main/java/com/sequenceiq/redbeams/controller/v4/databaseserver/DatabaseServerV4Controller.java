@@ -78,6 +78,7 @@ public class DatabaseServerV4Controller implements DatabaseServerV4Endpoint {
     @Inject
     private ConverterUtil converterUtil;
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public DatabaseServerV4Responses list(@TenantAwareParam String environmentCrn) {
@@ -99,6 +100,7 @@ public class DatabaseServerV4Controller implements DatabaseServerV4Endpoint {
         return converterUtil.convert(server, DatabaseServerV4Response.class);
     }
 
+    // TODO(authz): Shouldn't it be on resource level
     @Override
     @CheckPermissionByAccount(action = AuthorizationResourceAction.CREATE_DATABASE_SERVER)
     public DatabaseServerStatusV4Response create(AllocateDatabaseServerV4Request request) {

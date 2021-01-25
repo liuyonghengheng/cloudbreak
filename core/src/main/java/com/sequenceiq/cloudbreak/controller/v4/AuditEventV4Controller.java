@@ -18,6 +18,7 @@ import com.sequenceiq.cloudbreak.api.endpoint.v4.audits.responses.AuditEventV4Re
 import com.sequenceiq.cloudbreak.common.json.JsonUtil;
 import com.sequenceiq.cloudbreak.service.audit.AuditEventService;
 
+// TODO(authz): This should be authorized
 @Controller
 @DisableCheckPermissions
 public class AuditEventV4Controller implements AuditEventV4Endpoint {

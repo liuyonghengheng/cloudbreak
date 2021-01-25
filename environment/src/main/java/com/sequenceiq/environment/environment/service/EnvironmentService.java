@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceType;
 import com.sequenceiq.authorization.service.OwnerAssignmentService;
 import com.sequenceiq.authorization.service.ResourceCrnAndNameProvider;
@@ -202,6 +204,17 @@ public class EnvironmentService extends AbstractAccountAwareResourceService<Envi
 
     public Optional<EnvironmentDto> findById(Long id) {
         return environmentRepository.findById(id).map(environmentDtoConverter::environmentToDto);
+    }
+
+    public List<EnvironmentDto> findAllByIds(List<Long> ids) {
+        return Lists.newArrayList(environmentRepository.findAllById(ids))
+                .stream()
+                .map(environmentDtoConverter::environmentToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<AuthorizationResource> findAsAuthorizationResourcesInAccount(String accountId) {
+        return environmentRepository.findAsAuthorizationResourcesInAccount(accountId);
     }
 
     public void setLocation(Environment environment, RegionWrapper regionWrapper, CloudRegions cloudRegions) {

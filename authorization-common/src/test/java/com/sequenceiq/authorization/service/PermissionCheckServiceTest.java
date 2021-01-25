@@ -31,7 +31,7 @@ import com.sequenceiq.authorization.annotation.InternalOnly;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
 import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
-import com.sequenceiq.authorization.resource.ListResourceProvider;
+import com.sequenceiq.authorization.resource.AuthorizationFiltering;
 import com.sequenceiq.authorization.resource.ResourceCrnAwareApiModel;
 import com.sequenceiq.authorization.service.list.ListAuthorizationService;
 import com.sequenceiq.cloudbreak.auth.ReflectionUtil;
@@ -274,14 +274,14 @@ public class PermissionCheckServiceTest {
         }
 
         @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT,
-                provider = ExampleListAuthorizationProvider.class)
+                filter = ExampleFiltering.class)
         public List<ResourceCrnAwareApiModel> listMethod() {
             return List.of();
         }
 
         @CheckPermissionByAccount(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT)
         @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT,
-                provider = ExampleListAuthorizationProvider.class)
+                filter = ExampleFiltering.class)
         public List<ResourceCrnAwareApiModel> listAndAcccountBasedMethod() {
             return List.of();
         }
@@ -292,20 +292,20 @@ public class PermissionCheckServiceTest {
         }
     }
 
-    static class ExampleListAuthorizationProvider implements ListResourceProvider<String> {
+    static class ExampleFiltering implements AuthorizationFiltering<String> {
 
         @Override
-        public List<AuthorizationResource> getAuthorizationResources(Map<String, Object> params) {
+        public List<AuthorizationResource> getAllResources(Map<String, Object> args) {
             return List.of();
         }
 
         @Override
-        public String getResult(List<Long> authorizedResourceIds) {
+        public String filterByIds(List<Long> authorizedResourceIds, Map<String, Object> args) {
             return "NOPE";
         }
 
         @Override
-        public String getLegacyResult() {
+        public String getAll(Map<String, Object> args) {
             return "NOPE";
         }
     }

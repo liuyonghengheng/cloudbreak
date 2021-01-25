@@ -13,7 +13,6 @@ import javax.transaction.Transactional.TxType;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.sequenceiq.cloudbreak.auth.security.internal.AccountId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -25,6 +24,7 @@ import com.sequenceiq.authorization.annotation.CheckPermissionByResourceCrnList;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceName;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceNameList;
 import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
+import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.annotation.InternalOnly;
 import com.sequenceiq.authorization.annotation.RequestObject;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
@@ -32,9 +32,11 @@ import com.sequenceiq.authorization.annotation.ResourceCrnList;
 import com.sequenceiq.authorization.annotation.ResourceName;
 import com.sequenceiq.authorization.annotation.ResourceNameList;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
+import com.sequenceiq.authorization.service.list.ListAuthorizationService;
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
 import com.sequenceiq.cloudbreak.auth.altus.CrnResourceDescriptor;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
+import com.sequenceiq.cloudbreak.auth.security.internal.AccountId;
 import com.sequenceiq.cloudbreak.auth.security.internal.TenantAwareParam;
 import com.sequenceiq.cloudbreak.structuredevent.rest.annotation.AccountEntityType;
 import com.sequenceiq.cloudbreak.validation.ValidCrn;
@@ -50,6 +52,7 @@ import com.sequenceiq.environment.api.v1.environment.model.response.DetailedEnvi
 import com.sequenceiq.environment.api.v1.environment.model.response.EnvironmentCrnResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.SimpleEnvironmentResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.SimpleEnvironmentResponses;
+import com.sequenceiq.environment.authorization.EnvironmentFiltering;
 import com.sequenceiq.environment.credential.domain.Credential;
 import com.sequenceiq.environment.credential.service.CredentialService;
 import com.sequenceiq.environment.credential.v1.converter.CredentialToCredentialV1ResponseConverter;
@@ -100,6 +103,8 @@ public class EnvironmentController implements EnvironmentEndpoint {
 
     private final EntitlementService entitlementService;
 
+    private final ListAuthorizationService listAuthorizationService;
+
     public EnvironmentController(
             EnvironmentApiConverter environmentApiConverter,
             EnvironmentResponseConverter environmentResponseConverter,
@@ -112,7 +117,8 @@ public class EnvironmentController implements EnvironmentEndpoint {
             CredentialService credentialService,
             CredentialToCredentialV1ResponseConverter credentialConverter,
             EnvironmentStackConfigUpdateService stackConfigUpdateService,
-            EntitlementService entitlementService) {
+            EntitlementService entitlementService,
+            ListAuthorizationService listAuthorizationService) {
         this.environmentApiConverter = environmentApiConverter;
         this.environmentResponseConverter = environmentResponseConverter;
         this.environmentService = environmentService;
@@ -125,6 +131,7 @@ public class EnvironmentController implements EnvironmentEndpoint {
         this.credentialConverter = credentialConverter;
         this.stackConfigUpdateService = stackConfigUpdateService;
         this.entitlementService = entitlementService;
+        this.listAuthorizationService = listAuthorizationService;
     }
 
     @Override
@@ -224,11 +231,12 @@ public class EnvironmentController implements EnvironmentEndpoint {
         return environmentResponseConverter.dtoToDetailedResponse(result);
     }
 
+    // TODO(authz): list filtering
     @Override
-    @DisableCheckPermissions
+    @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT, filter = EnvironmentFiltering.class)
     public SimpleEnvironmentResponses list() {
-        String accountId = ThreadBasedUserCrnProvider.getAccountId();
-        return listAllEnvironmentsForAccount(accountId);
+        List<EnvironmentDto> environmentDtos = listAuthorizationService.getResultAs();
+        return toSimpleEnvironmentResponses(environmentDtos);
     }
 
     @Override
@@ -239,6 +247,10 @@ public class EnvironmentController implements EnvironmentEndpoint {
 
     private SimpleEnvironmentResponses listAllEnvironmentsForAccount(String accountId) {
         List<EnvironmentDto> environmentDtos = environmentService.listByAccountId(accountId);
+        return toSimpleEnvironmentResponses(environmentDtos);
+    }
+
+    private SimpleEnvironmentResponses toSimpleEnvironmentResponses(List<EnvironmentDto> environmentDtos) {
         List<SimpleEnvironmentResponse> responses = environmentDtos.stream().map(environmentResponseConverter::dtoToSimpleResponse)
                 .collect(Collectors.toList());
         return new SimpleEnvironmentResponses(responses);

@@ -20,11 +20,12 @@ import org.springframework.stereotype.Service;
 import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceAction;
-import com.sequenceiq.authorization.resource.ListResourceProvider;
+import com.sequenceiq.authorization.resource.AuthorizationFiltering;
 import com.sequenceiq.authorization.service.UmsRightProvider;
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.auth.altus.EntitlementService;
 import com.sequenceiq.cloudbreak.auth.altus.GrpcUmsClient;
+import com.sequenceiq.cloudbreak.auth.altus.InternalCrnBuilder;
 
 @Service
 public class ListAuthorizationService {
@@ -34,7 +35,7 @@ public class ListAuthorizationService {
     private static final ThreadLocal<Object> AUTHORIZED_DATA = new ThreadLocal<>();
 
     @Inject
-    private Map<Class<ListResourceProvider<?>>, ListResourceProvider<?>> listResourceProviders;
+    private Map<Class<AuthorizationFiltering<?>>, AuthorizationFiltering<?>> listResourceProviders;
 
     @Inject
     private EntitlementService entitlementService;
@@ -48,28 +49,27 @@ public class ListAuthorizationService {
     @Inject
     private ListParamsUtil listParamsUtil;
 
-    public <T> T getResultAs(Class<T> clazz) {
-        Object data = AUTHORIZED_DATA.get();
-        if (clazz.isAssignableFrom(data.getClass())) {
-            return (T) data;
-        } else {
-            throw new RuntimeException("Authorization failed. Could't set authorized response.");
-        }
+    public <T> T getResultAs() {
+        return (T) AUTHORIZED_DATA.get();
     }
 
     public Object filterList(FilterListBasedOnPermissions annotation, Crn userCrn, ProceedingJoinPoint proceedingJoinPoint, MethodSignature methodSignature,
             Optional<String> requestId) {
         AuthorizationResourceAction action = annotation.action();
-        ListResourceProvider<?> listResourceProvider = listResourceProviders.get(annotation.provider());
+        AuthorizationFiltering<?> authorizationFiltering = listResourceProviders.get(annotation.filter());
         Object authorizedData;
-        if (entitlementService.listFilteringEnabled(userCrn.getAccountId())) {
-            Map<String, Object> arguments = listParamsUtil.getFilterParams(methodSignature.getMethod(), proceedingJoinPoint);
-            List<AuthorizationResource> resources = listResourceProvider.getAuthorizationResources(arguments);
-            List<Long> authorizedResourceIds = getAuthorizedResourceIds(userCrn, action, resources, requestId);
-            authorizedData = listResourceProvider.getResult(authorizedResourceIds);
+        Map<String, Object> arguments = listParamsUtil.getFilterParams(methodSignature.getMethod(), proceedingJoinPoint);
+        if (InternalCrnBuilder.isInternalCrn(userCrn)) {
+            authorizedData = authorizationFiltering.getAll(arguments);
         } else {
-            checkAccountRight(userCrn, action, requestId);
-            authorizedData = listResourceProvider.getLegacyResult();
+            if (entitlementService.listFilteringEnabled(userCrn.getAccountId())) {
+                List<AuthorizationResource> resources = authorizationFiltering.getAllResources(arguments);
+                List<Long> authorizedResourceIds = getAuthorizedResourceIds(userCrn, action, resources, requestId);
+                authorizedData = authorizationFiltering.filterByIds(authorizedResourceIds, arguments);
+            } else {
+                checkAccountRight(userCrn, action, requestId);
+                authorizedData = authorizationFiltering.getAll(arguments);
+            }
         }
         try {
             AUTHORIZED_DATA.set(authorizedData);

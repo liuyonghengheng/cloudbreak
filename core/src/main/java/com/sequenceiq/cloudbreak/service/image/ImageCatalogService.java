@@ -39,6 +39,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.sequenceiq.authorization.resource.AuthorizationResource;
 import com.sequenceiq.authorization.resource.AuthorizationResourceType;
 import com.sequenceiq.authorization.service.OwnerAssignmentService;
 import com.sequenceiq.authorization.service.ResourceCrnAndNameProvider;
@@ -129,6 +131,19 @@ public class ImageCatalogService extends AbstractWorkspaceAwareResourceService<I
     @Override
     public Set<ImageCatalog> findAllByWorkspaceId(Long workspaceId) {
         Set<ImageCatalog> imageCatalogs = imageCatalogRepository.findAllByWorkspaceIdAndArchived(workspaceId, false);
+        imageCatalogs.add(getCloudbreakDefaultImageCatalog());
+        if (legacyCatalogEnabled) {
+            imageCatalogs.add(getCloudbreakLegacyDefaultImageCatalog());
+        }
+        return imageCatalogs;
+    }
+
+    public List<AuthorizationResource> findAsAuthorizationResorcesInWorkspace(Long workspaceId) {
+        return imageCatalogRepository.findAsAuthorizationResourcesInWorksapce(workspaceId);
+    }
+
+    public Set<ImageCatalog> findAllByIdsWithDefaults(Iterable<Long> ids) {
+        Set<ImageCatalog> imageCatalogs = Sets.newLinkedHashSet(imageCatalogRepository.findAllById(ids));
         imageCatalogs.add(getCloudbreakDefaultImageCatalog());
         if (legacyCatalogEnabled) {
             imageCatalogs.add(getCloudbreakLegacyDefaultImageCatalog());

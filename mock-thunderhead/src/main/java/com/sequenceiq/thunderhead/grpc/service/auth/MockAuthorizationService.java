@@ -1,12 +1,14 @@
 package com.sequenceiq.thunderhead.grpc.service.auth;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.cloudera.thunderhead.service.authorization.AuthorizationGrpc;
+import com.cloudera.thunderhead.service.authorization.AuthorizationProto;
 import com.cloudera.thunderhead.service.authorization.AuthorizationProto.CheckRightRequest;
 import com.cloudera.thunderhead.service.authorization.AuthorizationProto.CheckRightResponse;
 import com.cloudera.thunderhead.service.authorization.AuthorizationProto.HasRightsRequest;
@@ -39,6 +41,22 @@ public class MockAuthorizationService extends AuthorizationGrpc.AuthorizationImp
         HasRightsResponse.Builder builder = HasRightsResponse.newBuilder();
         request.getCheckList().forEach(check -> {
             LOGGER.info("Add result true for {}", check.getRight());
+            builder.addResult(true);
+        });
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void hasRightOnResources(AuthorizationProto.HasRightOnResourcesRequest request, StreamObserver<HasRightsResponse> responseObserver) {
+        LOGGER.info("Has rights for {}, right {}, resource count: {}, ", request.getActorCrn(), request.getRight(), request.getResourceCount());
+        checkArgument(!Strings.isNullOrEmpty(request.getActorCrn()));
+        checkNotNull(request.getRight());
+        checkArgument(request.getResourceCount() > 0);
+
+        HasRightsResponse.Builder builder = HasRightsResponse.newBuilder();
+        request.getResourceList().forEach(resource -> {
+            LOGGER.info("Add result true for has {} right on {}", request.getRight(), resource.getResource());
             builder.addResult(true);
         });
         responseObserver.onNext(builder.build());

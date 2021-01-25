@@ -129,6 +129,7 @@ public class DistroXV1Controller implements DistroXV1Endpoint {
     @Inject
     private DistroxService distroxService;
 
+    // TODO: list filtering
     @Override
     @DisableCheckPermissions
     public StackViewV4Responses list(String environmentName, String environmentCrn) {
@@ -479,6 +480,7 @@ public class DistroXV1Controller implements DistroXV1Endpoint {
         return diagnosticsTriggerService.startCmDiagnostics(request, request.getStackCrn(), userCrn);
     }
 
+    // TODO(authz): This should be authoorized
     @Override
     @DisableCheckPermissions
     public List<String> getCmRoles(String stackCrn) {

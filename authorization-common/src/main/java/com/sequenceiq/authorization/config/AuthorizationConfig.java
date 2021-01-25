@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.google.common.collect.Maps;
 import com.sequenceiq.authorization.resource.AuthorizationResourceType;
-import com.sequenceiq.authorization.resource.ListResourceProvider;
+import com.sequenceiq.authorization.resource.AuthorizationFiltering;
 import com.sequenceiq.authorization.service.ResourceBasedCrnProvider;
 import com.sequenceiq.authorization.service.defaults.DefaultResourceChecker;
 
@@ -27,7 +27,7 @@ public class AuthorizationConfig {
     private Optional<List<ResourceBasedCrnProvider>> resourceBasedCrnProviders;
 
     @Inject
-    private Optional<List<ListResourceProvider<?>>> listResourceProviders;
+    private Optional<List<AuthorizationFiltering<?>>> listResourceProviders;
 
     @Bean
     public Map<AuthorizationResourceType, DefaultResourceChecker> defaultResourceCheckerMap() {
@@ -56,11 +56,11 @@ public class AuthorizationConfig {
     }
 
     @Bean
-    public Map<Class<ListResourceProvider<?>>, ListResourceProvider<?>> listResourceProviders() {
+    public Map<Class<AuthorizationFiltering<?>>, AuthorizationFiltering<?>> listResourceProviders() {
         if (listResourceProviders.isPresent()) {
-            Map<Class<ListResourceProvider<?>>, ListResourceProvider<?>> bean = new HashMap<>();
-            for (ListResourceProvider<?> listResourceProvider : listResourceProviders.get()) {
-                bean.put((Class<ListResourceProvider<?>>) listResourceProvider.getClass(), listResourceProvider);
+            Map<Class<AuthorizationFiltering<?>>, AuthorizationFiltering<?>> bean = new HashMap<>();
+            for (AuthorizationFiltering<?> authorizationFiltering : listResourceProviders.get()) {
+                bean.put((Class<AuthorizationFiltering<?>>) authorizationFiltering.getClass(), authorizationFiltering);
             }
             return Map.copyOf(bean);
         } else {

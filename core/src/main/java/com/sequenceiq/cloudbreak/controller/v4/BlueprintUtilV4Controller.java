@@ -25,6 +25,7 @@ import com.sequenceiq.cloudbreak.service.blueprint.BlueprintService;
 import com.sequenceiq.cloudbreak.workspace.controller.WorkspaceEntityType;
 import com.sequenceiq.common.api.type.CdpResourceType;
 
+// TODO(authz): This should be authorized
 @Controller
 @DisableCheckPermissions
 @Transactional(TxType.NEVER)

@@ -69,6 +69,7 @@ public class DiagnosticsV4Controller implements DiagnosticsV4Endpoint {
         return diagnosticsTriggerService.startCmDiagnostics(request, request.getStackCrn(), userCrn);
     }
 
+    // TODO(authz): Why is this not authorized?
     @Override
     @DisableCheckPermissions
     public List<String> getCmRoles(String stackCrn) {

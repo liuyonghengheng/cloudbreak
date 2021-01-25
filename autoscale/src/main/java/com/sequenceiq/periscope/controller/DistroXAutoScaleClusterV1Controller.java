@@ -72,6 +72,7 @@ public class DistroXAutoScaleClusterV1Controller implements DistroXAutoScaleClus
     @Inject
     private HistoryConverter historyConverter;
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public List<DistroXAutoscaleClusterResponse> getClusters() {

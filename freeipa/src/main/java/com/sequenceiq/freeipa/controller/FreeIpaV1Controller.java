@@ -153,6 +153,7 @@ public class FreeIpaV1Controller implements FreeIpaV1Endpoint {
         return freeIpaDescribeService.describe(environmentCrn, accountId);
     }
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public List<ListFreeIpaResponse> list() {

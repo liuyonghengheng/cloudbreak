@@ -38,6 +38,7 @@ public class DatabaseV4Controller implements DatabaseV4Endpoint {
     @Inject
     private DatabaseConfigService databaseConfigService;
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public DatabaseV4Responses list(@TenantAwareParam String environmentCrn) {
@@ -45,6 +46,7 @@ public class DatabaseV4Controller implements DatabaseV4Endpoint {
                 DatabaseV4Response.class));
     }
 
+    // TODO(authz): Shouldn't it be on resource level
     @Override
     @CheckPermissionByAccount(action = AuthorizationResourceAction.REGISTER_DATABASE)
     public DatabaseV4Response register(@Valid DatabaseV4Request request) {

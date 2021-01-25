@@ -18,6 +18,7 @@ public class DistroXInternalV1Controller implements DistroXInternalV1Endpoint {
     @Inject
     private StackOperations stackOperations;
 
+    // TODO(authz): This should be on resource level
     @Override
     @CheckPermissionByAccount(action = AuthorizationResourceAction.DATAHUB_READ)
     public StackViewV4Response getByCrn(String crn) {

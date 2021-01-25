@@ -80,6 +80,7 @@ public class ClusterTemplateV4Controller extends NotificationController implemen
         return getByName(workspaceId, clusterTemplate.getName());
     }
 
+    // TODO(authz): list filtering
     @Override
     @DisableCheckPermissions
     public ClusterTemplateViewV4Responses list(Long workspaceId) {
