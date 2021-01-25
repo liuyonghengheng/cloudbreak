@@ -70,7 +70,7 @@ public class RecipeTest extends AbstractIntegrationTest {
                         RunningParameter.expectedMessage("Doesn't have 'environments/deleteRecipe' right on 'recipe' " +
                                 patternWithName(testContext.get(RecipeTestDto.class).getName()))
                                 .withKey("RecipeDeleteAction"))
-                .when(recipeTestClient.deleteV4())
+                .when(recipeTestClient.deleteV4(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_A)))
                 .when(recipeTestClient.listV4())
                 .then((context, dto, client) -> {
                     Assertions.assertThat(

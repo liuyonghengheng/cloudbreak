@@ -58,7 +58,6 @@ public class EnvStopStartWithEnvAdmin extends AbstractIntegrationTest {
 
     @Override
     protected void setupTest(TestContext testContext) {
-
         useRealUmsUser(testContext, AuthUserKeys.ACCOUNT_ADMIN);
         useRealUmsUser(testContext, AuthUserKeys.ENV_CREATOR_B);
         //hacky way to let access to image catalog
@@ -83,7 +82,6 @@ public class EnvStopStartWithEnvAdmin extends AbstractIntegrationTest {
                 .withCreateFreeIpa(false)
                 .when(environmentTestClient.create())
                 .await(EnvironmentStatus.AVAILABLE)
-
                 // testing unauthorized calls for environment
                 .when(environmentTestClient.describe(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_B)))
                 .expect(ForbiddenException.class,
@@ -96,7 +94,10 @@ public class EnvStopStartWithEnvAdmin extends AbstractIntegrationTest {
                                 environmentPattern(testContext))
                                 .withKey("EnvironmentGetAction"))
                 .validate();
+
+        useRealUmsUser(testContext, AuthUserKeys.ENV_CREATOR_A);
         createDatalake(testContext);
+
         testContext
                 .given(EnvironmentTestDto.class)
                 .given(UmsTestDto.class)

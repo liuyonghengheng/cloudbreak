@@ -34,6 +34,7 @@ public class EnvironmentLegacyAuthzGetTest extends AbstractMockTest {
 
     @Override
     protected void setupTest(TestContext testContext) {
+        cloudbreakActor.setRealUmsUserAccount("legacy");
         useRealUmsUser(testContext, AuthUserKeys.LEGACY_NON_POWER);
         useRealUmsUser(testContext, AuthUserKeys.LEGACY_POWER);
         useRealUmsUser(testContext, AuthUserKeys.LEGACY_ACC_ENV_ADMIN);

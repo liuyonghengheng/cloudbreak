@@ -85,8 +85,11 @@ public class EnvironmentCreateTest extends AbstractMockTest {
                 .expect(ForbiddenException.class,
                         RunningParameter.expectedMessage("Doesn't have 'environments/describeEnvironment' right on 'environment' " +
                                 environmentPattern(testContext))
-                                .withKey("EnvironmentGetAction"));
+                                .withKey("EnvironmentGetAction"))
+                .validate();
+
         testFreeipaCreation(testContext);
+
         testContext
                 //after assignment describe should work for the environment
                 .given(UmsTestDto.class)
@@ -98,10 +101,12 @@ public class EnvironmentCreateTest extends AbstractMockTest {
                 .given(EnvironmentTestDto.class)
                 .when(environmentTestClient.describe(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_B)))
                 .validate();
+
         testCheckRightUtil(testContext, testContext.given(EnvironmentTestDto.class).getCrn());
+
         testContext
                 .given(EnvironmentTestDto.class)
-                .when(environmentTestClient.delete())
+                .when(environmentTestClient.delete(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_A)))
                 .validate();
     }
 
@@ -142,7 +147,6 @@ public class EnvironmentCreateTest extends AbstractMockTest {
                 .await(Status.STOPPED)
                 .when(freeIpaTestClient.start())
                 .await(Status.AVAILABLE)
-
                 //testing unathorized freeipa calls for the environment
                 .when(freeIpaTestClient.describe(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_B)))
                 .expect(ForbiddenException.class,
@@ -158,7 +162,8 @@ public class EnvironmentCreateTest extends AbstractMockTest {
                 .expect(ForbiddenException.class,
                         RunningParameter.expectedMessage("Doesn't have 'environments/startEnvironment' right on 'environment' " +
                                 environmentFreeIpaPattern(testContext))
-                                .withKey("FreeIpaStartAction"));
+                                .withKey("FreeIpaStartAction"))
+                .validate();
     }
 
     private String environmentPattern(TestContext testContext) {

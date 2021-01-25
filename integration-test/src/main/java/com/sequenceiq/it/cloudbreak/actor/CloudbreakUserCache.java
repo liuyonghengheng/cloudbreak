@@ -59,8 +59,16 @@ public class CloudbreakUserCache {
         return realUmsUserAccount;
     }
 
+    public void setRealUmsUserAccount(String realUmsUserAccountKey) {
+        this.realUmsUserAccount = realUmsUserAccountKey;
+    }
+
     public String getRealUmsUserEnvironment() {
         return realUmsUserEnvironment;
+    }
+
+    public void setRealUmsUserEnvironment(String realUmsUserEnvironmentKey) {
+        this.realUmsUserEnvironment = realUmsUserEnvironmentKey;
     }
 
     public void initUsers(String environmentKey, String accountKey) {

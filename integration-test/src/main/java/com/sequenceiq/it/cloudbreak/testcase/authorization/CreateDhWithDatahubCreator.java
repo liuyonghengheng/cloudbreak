@@ -60,7 +60,6 @@ public class CreateDhWithDatahubCreator extends AbstractIntegrationTest {
 
     @Override
     protected void setupTest(TestContext testContext) {
-
         useRealUmsUser(testContext, AuthUserKeys.ACCOUNT_ADMIN);
         useRealUmsUser(testContext, AuthUserKeys.ENV_CREATOR_B);
         //hacky way to let access to image catalog
@@ -84,7 +83,6 @@ public class CreateDhWithDatahubCreator extends AbstractIntegrationTest {
                 .withCreateFreeIpa(false)
                 .when(environmentTestClient.create())
                 .await(EnvironmentStatus.AVAILABLE)
-
                 // testing unauthorized calls for environment
                 .when(environmentTestClient.describe(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ENV_CREATOR_B)))
                 .expect(ForbiddenException.class,
@@ -97,7 +95,10 @@ public class CreateDhWithDatahubCreator extends AbstractIntegrationTest {
                                 environmentShortPattern(testContext))
                                 .withKey("EnvironmentGetAction"))
                 .validate();
+
+        useRealUmsUser(testContext, AuthUserKeys.ENV_CREATOR_A);
         createDatalake(testContext);
+
         String recipe1Name = testContext
                 .given(RecipeTestDto.class).valid()
                 .when(recipeTestClient.createV4(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.ACCOUNT_ADMIN)))

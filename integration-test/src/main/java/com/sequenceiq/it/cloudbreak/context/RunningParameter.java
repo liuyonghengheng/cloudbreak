@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sequenceiq.it.cloudbreak.actor.CloudbreakActor;
@@ -14,6 +16,8 @@ import com.sequenceiq.it.cloudbreak.testcase.authorization.AuthUserKeys;
 
 @Component
 public class RunningParameter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunningParameter.class);
 
     private CloudbreakUser who;
 
@@ -38,8 +42,13 @@ public class RunningParameter {
 
     public CloudbreakUser getWho() {
         if (Optional.ofNullable(doAsAdmin).orElse(false)) {
-            if (Optional.ofNullable(cloudbreakActor.isInitialized()).orElse(false)) {
-                return cloudbreakActor.useRealUmsUser(AuthUserKeys.ACCOUNT_ADMIN);
+            try {
+                if (Optional.ofNullable(cloudbreakActor.isInitialized()).orElse(false)) {
+                    return cloudbreakActor.useRealUmsUser(AuthUserKeys.ACCOUNT_ADMIN);
+                }
+            } catch (Exception e) {
+                LOGGER.info("Even the 'doAsAdmin' is 'true', the real UMS Admin is not initialized, falling back to the already used actor:: " +
+                        "\nDisplay Name: {} \nCrn: {} \nAdmin: {}", who.getDisplayName(), who.getCrn(), who.getAdmin(), e);
             }
         }
         return who;
