@@ -53,6 +53,11 @@ public class CloudbreakActor extends CloudbreakUserCache implements Actor {
         return getByDisplayName(key);
     }
 
+    public CloudbreakUser useRealUmsUser(String key, String environmentKey, String accountKey) {
+        LOGGER.info("Getting the requested real UMS user by key: {} and environment: {} and account: {}", key, environmentKey, accountKey);
+        return getByDisplayName(key, environmentKey, accountKey);
+    }
+
     private void checkNonEmpty(String name, String value) {
         if (StringUtils.hasLength(value)) {
             throw new TestFailException(String.format("Following variable must be set whether as environment variables or (test) application.yml: %s",

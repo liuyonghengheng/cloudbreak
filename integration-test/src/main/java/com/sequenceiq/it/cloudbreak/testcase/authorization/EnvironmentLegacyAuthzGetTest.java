@@ -20,6 +20,10 @@ import com.sequenceiq.it.cloudbreak.testcase.mock.AbstractMockTest;
 
 public class EnvironmentLegacyAuthzGetTest extends AbstractMockTest {
 
+    private static final String REAL_UMS_ACCOUNT_KEY = "legacy";
+
+    private static final String REAL_UMS_ENVIRONMENT_KEY = "dev";
+
     @Inject
     private EnvironmentTestClient environmentTestClient;
 
@@ -34,10 +38,9 @@ public class EnvironmentLegacyAuthzGetTest extends AbstractMockTest {
 
     @Override
     protected void setupTest(TestContext testContext) {
-        cloudbreakActor.setRealUmsUserAccount("legacy");
-        useRealUmsUser(testContext, AuthUserKeys.LEGACY_NON_POWER);
-        useRealUmsUser(testContext, AuthUserKeys.LEGACY_POWER);
-        useRealUmsUser(testContext, AuthUserKeys.LEGACY_ACC_ENV_ADMIN);
+        useRealUmsUser(testContext, AuthUserKeys.LEGACY_NON_POWER, REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY);
+        useRealUmsUser(testContext, AuthUserKeys.LEGACY_POWER, REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY);
+        useRealUmsUser(testContext, AuthUserKeys.LEGACY_ACC_ENV_ADMIN, REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY);
     }
 
     @Test(dataProvider = TEST_CONTEXT_WITH_MOCK)
@@ -49,15 +52,18 @@ public class EnvironmentLegacyAuthzGetTest extends AbstractMockTest {
         useRealUmsUser(testContext, AuthUserKeys.LEGACY_NON_POWER);
         testContext
                 .given(CredentialTestDto.class)
-                .when(credentialTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN)))
+                .when(credentialTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN,
+                        REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY)))
                 .given(EnvironmentTestDto.class)
                 .withCreateFreeIpa(false)
-                .when(environmentTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN)))
+                .when(environmentTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN,
+                        REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY)))
                 .await(EnvironmentStatus.AVAILABLE)
                 .when(environmentTestClient.describe())
                 .given(FreeIpaTestDto.class)
                 .withCatalog(getImageCatalogMockServerSetup().getFreeIpaImageCatalogUrl())
-                .when(freeIpaTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN)))
+                .when(freeIpaTestClient.create(), RunningParameter.who(cloudbreakActor.useRealUmsUser(AuthUserKeys.LEGACY_ACC_ENV_ADMIN,
+                        REAL_UMS_ENVIRONMENT_KEY, REAL_UMS_ACCOUNT_KEY)))
                 .await(Status.AVAILABLE)
                 .when(freeIpaTestClient.describe())
                 .validate();

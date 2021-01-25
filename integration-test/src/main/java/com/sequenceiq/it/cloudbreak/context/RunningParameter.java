@@ -46,8 +46,8 @@ public class RunningParameter {
                 if (Optional.ofNullable(cloudbreakActor.isInitialized()).orElse(false)) {
                     return cloudbreakActor.useRealUmsUser(AuthUserKeys.ACCOUNT_ADMIN);
                 }
-            } catch (Exception e) {
-                LOGGER.info("Even the 'doAsAdmin' is 'true', the UMS users have not been initialized, falling back to the already defined user!");
+            } catch (Exception ignored) {
+                LOGGER.warn("Even the 'doAsAdmin' is 'true', the UMS users have not been initialized, falling back to the already defined user!", ignored);
             }
         }
         return who;

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.sequenceiq.cloudbreak.auth.altus.Crn;
 import com.sequenceiq.cloudbreak.util.FileReaderUtils;
+import com.sequenceiq.it.cloudbreak.cloud.v4.CommonCloudProperties;
 import com.sequenceiq.it.cloudbreak.exception.TestFailException;
 
 @Component
@@ -25,17 +28,28 @@ public class CloudbreakUserCache {
 
     private Map<String, String> initializedKeys;
 
-    @Value("${integrationtest.user.mow.accountKey:default}")
+    @Value("${integrationtest.user.realUms.accountKey:default}")
     private String realUmsUserAccount;
 
-    @Value("${integrationtest.user.mow.environmentKey:dev}")
+    @Value("${integrationtest.user.realUms.environmentKey:dev}")
     private String realUmsUserEnvironment;
 
+    @Inject
+    private CommonCloudProperties commonCloudProperties;
+
+    protected CommonCloudProperties commonCloudProperties() {
+        return commonCloudProperties;
+    }
+
     public CloudbreakUser getByDisplayName(String name) {
-        return getByDisplayName(name, getRealUmsUserEnvironment(), getRealUmsUserAccount());
+        return getByDisplayName(name, commonCloudProperties.getUser().getRealUms().getEnvironmentKey(),
+                commonCloudProperties.getUser().getRealUms().getAccountKey());
     }
 
     public CloudbreakUser getByDisplayName(String name, String environmentKey, String accountKey) {
+        setRealUmsUserEnvironment(environmentKey);
+        setRealUmsUserAccount(accountKey);
+
         if (usersByAccount == null || !initializedKeys.containsKey(environmentKey) || !initializedKeys.containsValue(accountKey)) {
             initUsers(environmentKey, accountKey);
         }
@@ -75,9 +89,15 @@ public class CloudbreakUserCache {
         this.initializedKeys = keys;
     }
 
+    public void clearInitializedKeys() {
+        initializedKeys.clear();
+    }
+
     public void initUsers(String environmentKey, String accountKey) {
         String userConfigPath = "ums-users/api-credentials.json";
-        LOGGER.info("Real UMS environmentKey: {} and accountKey: {} at [{}] path", environmentKey, accountKey, userConfigPath);
+        LOGGER.info("Real UMS users are initializing by environment: {} and account: {}. Repository is present at: {} path", environmentKey, accountKey,
+                userConfigPath);
+        clearInitializedKeys();
         try {
             String accountId = null;
             List<CloudbreakUser> cloudbreakUsers = new ArrayList<CloudbreakUser>();

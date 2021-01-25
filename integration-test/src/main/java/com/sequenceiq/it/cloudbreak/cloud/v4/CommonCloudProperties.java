@@ -27,6 +27,8 @@ public class CommonCloudProperties {
 
     private ImageValidation imageValidation = new ImageValidation();
 
+    private User user = new User();
+
     public String getCloudProvider() {
         return cloudProvider;
     }
@@ -103,6 +105,14 @@ public class CommonCloudProperties {
         this.imageValidation = imageValidation;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public static class ImageValidation {
 
         private String sourceCatalogName;
@@ -133,6 +143,82 @@ public class CommonCloudProperties {
 
         public void setImageUuid(String imageUuid) {
             this.imageUuid = imageUuid;
+        }
+    }
+
+    public static class User {
+
+        private RealUms realUms = new RealUms();
+
+        private String accesskey;
+
+        private String secretkey;
+
+        private String crn;
+
+        private String name;
+
+        public String getAccessKey() {
+            return accesskey;
+        }
+
+        public void setAccessKey(String accessKey) {
+            this.accesskey = accessKey;
+        }
+
+        public String getSecretKey() {
+            return secretkey;
+        }
+
+        public void setSecretKey(String secretKey) {
+            this.secretkey = secretKey;
+        }
+
+        public String getCrn() {
+            return crn;
+        }
+
+        public void setCrn(String crn) {
+            this.crn = crn;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public RealUms getRealUms() {
+            return realUms;
+        }
+
+        public void setRealUms(RealUms realUms) {
+            this.realUms = realUms;
+        }
+
+        public static class RealUms {
+
+            private String accountKey;
+
+            private String environmentKey;
+
+            public String getAccountKey() {
+                return accountKey;
+            }
+
+            public void setAccountKey(String accountKey) {
+                this.accountKey = accountKey;
+            }
+
+            public String getEnvironmentKey() {
+                return environmentKey;
+            }
+
+            public void setEnvironmentKey(String environmentKey) {
+                this.environmentKey = environmentKey;
+            }
         }
     }
 }
