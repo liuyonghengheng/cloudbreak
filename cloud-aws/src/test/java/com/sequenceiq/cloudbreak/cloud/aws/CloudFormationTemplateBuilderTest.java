@@ -1395,6 +1395,7 @@ public class CloudFormationTemplateBuilderTest {
 
         //THEN
         Assertions.assertThat(templateString)
+            .matches(JsonUtil::isValid, "Invalid JSON: " + templateString)
             .contains("\"LoadBalancerInternal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::LoadBalancer\"")
             .contains("\"Scheme\" : \"internal\"")
             .contains("\"TargetGroupPort443Internal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::TargetGroup\"")
@@ -1426,6 +1427,7 @@ public class CloudFormationTemplateBuilderTest {
 
         //THEN
         Assertions.assertThat(templateString)
+            .matches(JsonUtil::isValid, "Invalid JSON: " + templateString)
             .contains("\"LoadBalancerInternal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::LoadBalancer\"")
             .contains("\"Scheme\" : \"internal\"")
             .contains("\"TargetGroupPort443Internal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::TargetGroup\"")
@@ -1460,6 +1462,7 @@ public class CloudFormationTemplateBuilderTest {
 
         //THEN
         Assertions.assertThat(templateString)
+            .matches(JsonUtil::isValid, "Invalid JSON: " + templateString)
             .contains("\"LoadBalancerInternal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::LoadBalancer\"")
             .contains("\"Scheme\" : \"internal\"")
             .contains("\"TargetGroupPort443Internal\" : {\"Type\" : \"AWS::ElasticLoadBalancingV2::TargetGroup\"")
@@ -1474,10 +1477,38 @@ public class CloudFormationTemplateBuilderTest {
             templateString.contains("\"Targets\" : [{ \"Id\" : \"instance2-888\" },{ \"Id\" : \"instance1-888\" }]}}");
     }
 
+    @Test
+    public void buildTestHealthCheckPortDifferentFromTrafficPort() {
+        //GIVEN
+        AwsLoadBalancer awsLoadBalancer = setupLoadBalancer(AwsLoadBalancerScheme.INTERNAL, 443, true);
+
+        //WHEN
+        modelContext = new ModelContext()
+            .withAuthenticatedContext(authenticatedContext)
+            .withStack(cloudStack)
+            .withExistingVpc(true)
+            .withExistingIGW(true)
+            .withExistingSubnetCidr(singletonList(existingSubnetCidr))
+            .withExistinVpcCidr(List.of(existingSubnetCidr))
+            .mapPublicIpOnLaunch(true)
+            .withEnableInstanceProfile(true)
+            .withInstanceProfileAvailable(true)
+            .withOutboundInternetTraffic(OutboundInternetTraffic.ENABLED)
+            .withTemplate(awsCloudFormationTemplate)
+            .withLoadBalancers(List.of(awsLoadBalancer));
+        String templateString = cloudFormationTemplateBuilder.build(modelContext);
+
+        //THEN
+        Assertions.assertThat(templateString)
+            .matches(JsonUtil::isValid, "Invalid JSON: " + templateString)
+            .contains("\"Port\" : 443")
+            .contains("\"HealthCheckPort\" : \"8443\"");
+    }
+
     private AwsLoadBalancer setupLoadBalancer(AwsLoadBalancerScheme scheme, int port, boolean setArn) {
         AwsLoadBalancer loadBalancer = new AwsLoadBalancer(scheme);
         loadBalancer.addSubnets(Set.of("subnet1"));
-        AwsListener listener = loadBalancer.getOrCreateListener(port);
+        AwsListener listener = loadBalancer.getOrCreateListener(port, 8443);
         listener.addInstancesToTargetGroup(Set.of("instance1-" + port, "instance2-" + port));
 
         if (setArn) {
